@@ -130,6 +130,12 @@ pip-selfcheck.json
 
 .idea/
 
+.idea
+
+# Other idea things
+.idea/inspectionProfiles
+.idea/misc.xml
+
 ## File-based project format:
 *.iws
 
