@@ -28,11 +28,12 @@ class SchemePage(FloatLayout):
         # own variables
         self._edit_mode = False
         self._selected_floor = 0
-        self.floors_amount = 0
+        self.floors = []
+        self.screens = []
 
         # edit tools
         self.edit_button = self._create_edit_button()
-        self.edit_tools = EditToolBox(pos_hint={'left':0, 'center_y':.5})
+        self.edit_tools = EditToolBox(self, pos_hint={'left':0, 'center_y':.5})
 
         # create and set up floor selector, screen manager and floor canvases
         self.grid_layout = GridLayout(rows=2, cols=1, size_hint=(1,1))
@@ -40,7 +41,7 @@ class SchemePage(FloatLayout):
         self.floor_selector = FloorSelector(self, size_hint=(1,None), size=(1280, 100))
         self.screen_manager = ScreenManager(transition=NoTransition())
 
-        for _ in range(self._get_floors_amount()):
+        for _ in range(self._get_schema_floors_amount()):
             self.add_floor()
 
         self.change_floor(self._selected_floor)
@@ -63,6 +64,7 @@ class SchemePage(FloatLayout):
     def change_floor(self, number:int) -> None:
         self.screen_manager.current = SchemePage._SCREEN_NAME % number
         self._selected_floor = number
+        self.floor_selector.select_button(number)
 
     def is_in_edit_mode(self) -> bool:
         return self._edit_mode
@@ -93,31 +95,42 @@ class SchemePage(FloatLayout):
         edit_button.bind(on_press=on_press)
         return edit_button
 
-    def get_selected_floor(self) -> int:
+    def get_current_floor_index(self) -> int:
         return self._selected_floor
 
     def add_floor(self):
-        if self.floors_amount >= SchemePage._MAX_FLOORS_AMOUNT:
+        if len(self.floors) >= SchemePage._MAX_FLOORS_AMOUNT:
             return
 
-        screen = Screen(name=SchemePage._SCREEN_NAME % self.floors_amount)
-        screen.add_widget(FloorCanvas(self, self.floor_selector))
+        screen = Screen(name=SchemePage._SCREEN_NAME % len(self.floors))
+        floor = FloorCanvas(self, self.floor_selector)
+        screen.add_widget(floor)
         self.screen_manager.add_widget(screen)
+        self.floors.append(floor)
+        self.screens.append(screen)
 
         self.floor_selector.add_button()
-
-        self.floors_amount += 1
 
     def save_changes(self):
         # todo
         pass
 
     def pop_floor(self):
-        # todo
-        pass
+        if len(self.floors) <= 1:
+            return
 
-    def _get_floors_amount(self) -> int:
-        return 7
+        if self._selected_floor == len(self.floors)-1:
+            self.change_floor(len(self.floors)-2)
+        self.floors.pop()
+        screen = self.screens.pop()
+        self.screen_manager.remove_widget(screen)
+        self.floor_selector.pop_button()
+
+    def _get_schema_floors_amount(self) -> int:
+        return 2
+
+    def get_current_floor(self):
+        return self.floors[self._selected_floor]
 
     @property
     def MAX_FLOORS_AMOUNT(self) -> int:
@@ -185,26 +198,59 @@ class FloorSelector(GridLayout):
 
         def on_press(instance):
             self.schema_page.change_floor(button_number)
-            self.select_button(button_number)
 
         button = Button(text=text, size_hint=(1/self.schema_page.MAX_FLOORS_AMOUNT, 1))
         button.bind(on_press=on_press)
+        button.background_color = FloorSelector._UNSELECTED_BUTTON_COLOR
 
         self.buttons.append(button)
         self.add_widget(button)
 
+    def pop_button(self):
+        if len(self.buttons) <= 1:
+            return
+
+        button = self.buttons.pop()
+        self.remove_widget(button)
+
 
 class EditToolBox(GridLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, schema_page:SchemePage,**kwargs):
         super().__init__(**kwargs)
         self.rows = 6
         self.cols = 1
         self.size = (75, 300)
         self.size_hint = (None, None)
 
-        self.add_widget(Button(text="Add Floor"))
-        self.add_widget(Button(text="Pop Floor"))
-        self.add_widget(Button(text="Square"))
-        self.add_widget(Button(text="Line"))
-        self.add_widget(Button(text="Sensor"))
-        self.add_widget(Button(text="Save"))
+        # own variables
+        self.schema_page = schema_page
+
+        # button functions
+        def add(instance):
+            self.schema_page.add_floor()
+
+        def pop(instance):
+            self.schema_page.pop_floor()
+
+        def square(instance):
+            self.schema_page.get_current_floor()
+
+        def line(instance):
+            self.schema_page.get_current_floor()
+
+        def sensor(instance):
+            self.schema_page.get_current_floor()
+
+        def save(instance):
+            self.schema_page.save_changes()
+
+        # defining buttons
+        texts = ["Add Floor", "Pop Floor", "Square", "Line", "Sensor", "Save"]
+        functions = [add, pop, square, line, sensor, save]
+
+        for text, f in zip(texts, functions):
+            button = Button(text=text)
+            button.bind(on_press=f)
+            self.add_widget(button)
+
+
