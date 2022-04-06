@@ -5,6 +5,7 @@ from kivy.core.window import Window
 from kivy import require
 require('2.1.0')
 
+
 class MainApp(App):
     def build(self):
         Window.size = (1280, 720)
