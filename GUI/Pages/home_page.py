@@ -1,5 +1,6 @@
 import json
 
+from kivy.clock import Clock
 from kivy.properties import StringProperty
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -24,8 +25,7 @@ class HomePage(GridLayout):
 
         self.load()
 
-
-
+        Clock.schedule_interval(lambda _: self.weather_widget.load(), 60)
 
 
     def load_name(self) -> str:
