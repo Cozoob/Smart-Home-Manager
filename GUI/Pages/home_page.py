@@ -1,5 +1,6 @@
 import json
 
+from kivy.properties import StringProperty
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 
@@ -9,6 +10,9 @@ import os
 
 class HomePage(GridLayout):
 
+    user = StringProperty("--")
+    hello_message = StringProperty("--")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.cols = 1
@@ -16,15 +20,11 @@ class HomePage(GridLayout):
 
         self.homepage_text = Label(text='HOMEPAGE', font_size=60, height=100)
 
-        self.user = self.load_name()
-        hello_message = f'Welcome {self.user}!'
-        self.hello_text = Label(text=hello_message, font_size=50, height=100)
-
         self.weather_widget = WeatherBoxWidget()
 
-        self.add_widget(self.homepage_text)
-        self.add_widget(self.hello_text)
-        self.add_widget(self.weather_widget)
+        self.load()
+
+
 
 
 
@@ -38,4 +38,21 @@ class HomePage(GridLayout):
         except FileNotFoundError:
             pass
 
+        print(name)
         return name
+
+
+    def load(self):
+        print("Changing user name")
+        self.user = self.load_name()
+        self.hello_message = f'Welcome {self.user}!'
+
+        self.clear_widgets()
+
+        user = self.load_name()
+        hello_message = f'Welcome {user}!'
+        hello_text = Label(text=hello_message, font_size=50, height=100)
+
+        self.add_widget(self.homepage_text)
+        self.add_widget(hello_text)
+        self.add_widget(self.weather_widget)

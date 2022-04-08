@@ -16,7 +16,12 @@ class WeatherBoxWidget(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
-        self.add_widget(WeatherWidget())
+        self.weather_widget = WeatherWidget()
+        self.add_widget(self.weather_widget)
+
+
+    def load(self):
+        self.weather_widget.load()
 
 
 class WeatherWidget(RelativeLayout):
@@ -42,7 +47,11 @@ class WeatherWidget(RelativeLayout):
         self.rows = 3
 
         self.size = (10, 10)
+        self.API_key = None
 
+        self.load()
+
+    def load(self):
         try:
             with open('./Data/user.json', 'r') as file:
                 user_info = json.loads(file.read())
@@ -53,7 +62,6 @@ class WeatherWidget(RelativeLayout):
         city = user_info['city']
 
         self.download_current_weather(city=f"{city}")
-
 
 
     def download_current_weather(self, city, *args, **kwargs):

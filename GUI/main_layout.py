@@ -20,7 +20,7 @@ class MainLayout(TabbedPanel):
         self.scheme_item.add_widget(self.scheme_page)
 
         self.settings_item = TabbedPanelItem(text="SETTINGS")
-        self.settings_page = SettingsPage()
+        self.settings_page = SettingsPage(self)
         self.settings_item.add_widget(self.settings_page)
 
         self.exit_item = TabbedPanelItem(text="EXIT",
@@ -36,3 +36,10 @@ class MainLayout(TabbedPanel):
 
     def bye(self, *_):
         exit(0)
+
+    def reload_settings(self):
+        self.home_page.load()
+        self.home_page.weather_widget.load()
+
+    def reload_schema(self):
+        pass

@@ -4,16 +4,20 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 
+# from GUI.main_layout import MainLayout
+
 import json
 
 class SettingsPage(RelativeLayout):
 
-    def __init__(self, **kwargs):
+    def __init__(self, main_layout, **kwargs):
         super().__init__(**kwargs)
         self.cols = 1
         self.rows = 7
 
         self.data = []
+
+        self.main_layout = main_layout
 
         self.first_name = 'NN'
         self.last_name = 'NN'
@@ -148,3 +152,4 @@ class SettingsPage(RelativeLayout):
         except FileNotFoundError:
             print("Cannot save changes.")
 
+        self.main_layout.reload_settings()
