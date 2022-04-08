@@ -139,7 +139,7 @@ class SettingsPage(RelativeLayout):
         self.data['last_name'] = self.inp_last_name.text
         self.data['country'] = self.inp_country.text
         self.data['region'] = self.inp_region.text
-        self.data['city'] = self.inp_region.text
+        self.data['city'] = self.inp_city.text
         self.data['API_key'] = self.inp_api_key.text
 
         try:
