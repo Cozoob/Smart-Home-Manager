@@ -1,5 +1,7 @@
 from random import random
 
+from abc import abstractproperty, abstractmethod
+
 from kivy.graphics import Canvas, Color, Ellipse, Line
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -9,6 +11,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, FallOutTransition, RiseInTransition, \
     NoTransition
 from kivy.uix.widget import Widget
+from kivy.graphics import Rectangle, Color
 
 
 def get_max_floors_amount():
@@ -33,12 +36,12 @@ class SchemePage(FloatLayout):
 
         # edit tools
         self.edit_button = self._create_edit_button()
-        self.edit_tools = EditToolBox(self, pos_hint={'left':0, 'center_y':.5})
+        self.edit_tools = EditToolBox(self, pos_hint={'left': 0, 'center_y': .5})
 
         # create and set up floor selector, screen manager and floor canvases
-        self.grid_layout = GridLayout(rows=2, cols=1, size_hint=(1,1))
+        self.grid_layout = GridLayout(rows=2, cols=1, size_hint=(1, 1))
 
-        self.floor_selector = FloorSelector(self, size_hint=(1,None), size=(1280, 100))
+        self.floor_selector = FloorSelector(self, size_hint=(1, None), size=(1280, 100))
         self.screen_manager = ScreenManager(transition=NoTransition())
 
         for _ in range(self._get_schema_floors_amount()):
@@ -51,8 +54,8 @@ class SchemePage(FloatLayout):
         self.grid_layout.add_widget(self.screen_manager)
         self.grid_layout.add_widget(self.floor_selector)
 
-        self.add_widget(self.edit_button)
         self.add_widget(self.grid_layout)
+        self.add_widget(self.edit_button)
         self.add_widget(self.edit_tools)
 
         # set up edit mode
@@ -61,7 +64,7 @@ class SchemePage(FloatLayout):
         else:
             self.turn_off_edit_mode()
 
-    def change_floor(self, number:int) -> None:
+    def change_floor(self, number: int) -> None:
         self.screen_manager.current = SchemePage._SCREEN_NAME % number
         self._selected_floor = number
         self.floor_selector.select_button(number)
@@ -88,8 +91,8 @@ class SchemePage(FloatLayout):
 
         edit_button = Button(
             text=SchemePage._EDIT_ON_MESSAGE if self._edit_mode else SchemePage._EDIT_OFF_MESSAGE,
-            pos_hint={'right':1, 'center_y':0.9},
-            size=(100,100),
+            pos_hint={'right': 1, 'center_y': 0.9},
+            size=(100, 100),
             size_hint=(None, None)
         )
         edit_button.bind(on_press=on_press)
@@ -119,8 +122,8 @@ class SchemePage(FloatLayout):
         if len(self.floors) <= 1:
             return
 
-        if self._selected_floor == len(self.floors)-1:
-            self.change_floor(len(self.floors)-2)
+        if self._selected_floor == len(self.floors) - 1:
+            self.change_floor(len(self.floors) - 2)
         self.floors.pop()
         screen = self.screens.pop()
         self.screen_manager.remove_widget(screen)
@@ -137,11 +140,107 @@ class SchemePage(FloatLayout):
         return self._MAX_FLOORS_AMOUNT
 
 
+class SchemeObject(Widget):
+    """
+    Abstract class
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @abstractmethod
+    def get_data(self):
+        pass
+
+    @abstractmethod
+    def change_position(self, pos):
+        pass
+
+    @abstractmethod
+    def change_size(self, size):
+        pass
+
+    @abstractmethod
+    def select(self):
+        pass
+
+
+class SchemeRectangle(SchemeObject):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def get_data(self):
+        return {
+            "x": self.pos.x,
+            "y": self.pos.y,
+            "width": self.size.x,
+            "height": self.size.y,
+        }
+
+    def change_position(self, pos):
+        self.pos = pos
+
+    def change_size(self, size):
+        pass
+        # self.size = size
+
+    def select(self):
+        pass
+
+
+class SchemeSensor(SchemeObject):
+
+    def __init__(self, sensor, **kwargs):
+        super().__init__(**kwargs)
+        self.sensor = sensor
+
+    def get_data(self):
+        return {
+            "x": self.pos.x,
+            "y": self.pos.y,
+            "width": self.size.x,
+            "height": self.size.y,
+            "type": self.sensor.type,
+            "topic": self.sensor.topic
+        }
+
+    def change_position(self, pos):
+        self.pos = pos
+
+    def change_size(self, size):
+        pass
+        # self.size = size
+
+    def select(self):
+        pass
+
+
 class FloorCanvas(Widget):
-    def __init__(self, schema_page:SchemePage, floor_number:int, **kwargs):
+    def __init__(self, schema_page: SchemePage, floor_number: int, **kwargs):
         super().__init__(**kwargs)
         self.floor_number = floor_number
         self.schema_page = schema_page
+        self.objects = []
+
+        # Arranging Canvas
+        with self.canvas:
+            Color(.234, .456, .678, .8)  # set the colour
+
+            # Setting the size and position of canvas
+            self.rect = Rectangle(pos=self.center,
+                                  size=(self.width,
+                                        self.height))
+
+            # Update the canvas as the screen size change
+            self.bind(pos=self.update_rect,
+                      size=self.update_rect)
+
+        # update function which makes the canvas adjustable.
+
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
 
     def on_touch_down(self, touch):
         if self.schema_page.is_in_edit_mode():
@@ -154,18 +253,20 @@ class FloorCanvas(Widget):
         if self.schema_page.is_in_edit_mode() and 'line' in touch.ud.keys():
             touch.ud['line'].points += [touch.x, touch.y]
 
-    def _get_floor_data(self) -> dict:
+    def _get_floor_data(self) -> list:
+        pass
+
+    def save_floor_data(self) -> list:
         pass
 
 
 class FloorSelector(GridLayout):
-
     _DEFAULT_BUTTON_TEXT = "Floor %d"
 
-    _SELECTED_BUTTON_COLOR = [0,0,0.8,1]
-    _UNSELECTED_BUTTON_COLOR = [0.5,0.5,0.5,1]
+    _SELECTED_BUTTON_COLOR = [0, 0, 0.8, 1]
+    _UNSELECTED_BUTTON_COLOR = [0.5, 0.5, 0.5, 1]
 
-    def __init__(self, schema_page:SchemePage, **kwargs):
+    def __init__(self, schema_page: SchemePage, **kwargs):
         super().__init__(**kwargs)
         self.rows = 1
         self.cols = schema_page.MAX_FLOORS_AMOUNT
@@ -173,11 +274,11 @@ class FloorSelector(GridLayout):
         self.schema_page = schema_page
         self.buttons = []
 
-    def add_buttons(self, amount:int) -> None:
+    def add_buttons(self, amount: int) -> None:
         for _ in range(amount):
             self.add_button()
 
-    def select_button(self, index:int) -> None:
+    def select_button(self, index: int) -> None:
         try:
             for btn in self.buttons:
                 btn.background_color = FloorSelector._UNSELECTED_BUTTON_COLOR
@@ -199,7 +300,7 @@ class FloorSelector(GridLayout):
         def on_press(instance):
             self.schema_page.change_floor(button_number)
 
-        button = Button(text=text, size_hint=(1/self.schema_page.MAX_FLOORS_AMOUNT, 1))
+        button = Button(text=text, size_hint=(1 / self.schema_page.MAX_FLOORS_AMOUNT, 1))
         button.bind(on_press=on_press)
         button.background_color = FloorSelector._UNSELECTED_BUTTON_COLOR
 
@@ -215,7 +316,7 @@ class FloorSelector(GridLayout):
 
 
 class EditToolBox(GridLayout):
-    def __init__(self, schema_page:SchemePage,**kwargs):
+    def __init__(self, schema_page: SchemePage, **kwargs):
         super().__init__(**kwargs)
         self.rows = 6
         self.cols = 1
@@ -252,5 +353,3 @@ class EditToolBox(GridLayout):
             button = Button(text=text)
             button.bind(on_press=f)
             self.add_widget(button)
-
-

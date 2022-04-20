@@ -38,12 +38,11 @@ class HomePage(GridLayout):
         except FileNotFoundError:
             pass
 
-        print(name)
         return name
 
 
     def load(self):
-        print("Changing user name")
+        print("Loading user name in home page.")
         self.user = self.load_name()
         self.hello_message = f'Welcome {self.user}!'
 
