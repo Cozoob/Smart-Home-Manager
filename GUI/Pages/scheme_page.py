@@ -3,19 +3,29 @@ from random import random
 from abc import abstractproperty, abstractmethod
 
 from kivy.graphics import Canvas, Color, Ellipse, Line
+from kivy.lang import Builder
+from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty
+from kivy.uix.behaviors import DragBehavior
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
+from kivy.uix.scatter import Scatter
+from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, FallOutTransition, RiseInTransition, \
     NoTransition
 from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color
+from typing import List
+from kivy_garden.draggable import (
+    KXDraggableBehavior, KXDroppableBehavior,
+)
 
-
-def get_max_floors_amount():
-    return SchemePage._MAX_FLOORS_AMOUNT
+# def get_max_floors_amount():
+#     return SchemePage._MAX_FLOORS_AMOUNT
+from kivy_garden.drag_n_drop import DraggableLayoutBehavior, DraggableObjectBehavior, DraggableController
 
 
 class SchemePage(FloatLayout):
@@ -140,13 +150,42 @@ class SchemePage(FloatLayout):
         return self._MAX_FLOORS_AMOUNT
 
 
-class SchemeObject(Widget):
+# drag_controller = DraggableController()
+#
+# class DragLabel(KXDraggableBehavior, Label):
+#
+#     # def __init__(self, **kwargs):
+#     #     super(DragLabel, self).__init__(
+#     #         **kwargs)
+#     #     self.size_hint = [0.1,0.1]
+#     #     self.size = [100,100]
+#     #     self.pos = self.center
+#
+#     async def on_drag_fail(self, touch):
+#         import asynckivy as ak
+#         await ak.animate(self, opacity=0)
+#         self.parent.remove_widget(self)
+
+
+Builder.load_file("GUI/Pages/scheme_page.kv")
+
+class SchemeObject(BoxLayout):
     """
     Abstract class
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.selected = False
+        self.size_hint = [None,None]
+
+
+
+    # def on_touch_down(self, touch):
+    #     self.selected = True
+    #
+    # def on_touch_up(self, touch):
+    #     self.selected = False
 
     @abstractmethod
     def get_data(self):
@@ -164,11 +203,34 @@ class SchemeObject(Widget):
     def select(self):
         pass
 
+    @abstractmethod
+    def unselect(self):
+        pass
+
 
 class SchemeRectangle(SchemeObject):
+    counter = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        label = Label(text="Drag me!", pos=self.pos)
+        # Arranging Canvas
+        with self.canvas.before:
+            Color(0, 0, 0, .5)  # set the colour
+
+            # Setting the size and position of canvas
+            self.rect = Rectangle(pos=self.center,
+                                  size=(self.width,
+                                        self.height))
+
+            # Update the canvas as the screen size change
+            self.bind(pos=self.update_rect,
+                      size=self.update_rect)
+
+    # update function which makes the canvas adjustable.
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
 
     def get_data(self):
         return {
@@ -186,6 +248,9 @@ class SchemeRectangle(SchemeObject):
         # self.size = size
 
     def select(self):
+        pass
+
+    def unselect(self):
         pass
 
 
@@ -215,34 +280,60 @@ class SchemeSensor(SchemeObject):
     def select(self):
         pass
 
+    def unselect(self):
+        pass
 
-class FloorCanvas(Widget):
+
+class FloorCanvas(RelativeLayout):
+    counter = NumericProperty(0)
+    selected = ObjectProperty(None)
+    sel = BooleanProperty(False)
+
     def __init__(self, schema_page: SchemePage, floor_number: int, **kwargs):
         super().__init__(**kwargs)
         self.floor_number = floor_number
         self.schema_page = schema_page
-        self.objects: list[SchemeObject] = []
-
-        # Arranging Canvas
-        with self.canvas:
-            Color(0,0,0,.5)  # set the colour
-
-            # Setting the size and position of canvas
-            self.rect = Rectangle(pos=self.center,
-                                  size=(self.width,
-                                        self.height))
-
-            # Update the canvas as the screen size change
-            self.bind(pos=self.update_rect,
-                      size=self.update_rect)
-
-        # update function which makes the canvas adjustable.
+        self.objects: List[SchemeObject] = []
 
         self.add_rectangle()
 
-    def update_rect(self, *args):
-        self.rect.pos = self.pos
-        self.rect.size = self.size
+    def on_touch_down(self, touch):
+        if touch.x < 100 and touch.y < 100:
+            return super(FloorCanvas, self).on_touch_down(touch)
+        if self.select.state == 'down':
+            for child in self.children:
+                if child.collide_point(*touch.pos):
+                    self.selected = child
+                    self.sel = True
+                    with self.canvas:
+                        Color(0, 0, 0)
+                        touch.ud['line'] = Line(rectangle=(child.x - 5,
+                                                           child.y - 5, child.width + 10, child.height + 10),
+                                                dash_length=5, dash_offset=2)
+                    break
+
+    def on_touch_move(self, touch):
+        if self.select.state == 'down' and self.sel == True:
+            self.canvas.remove(touch.ud['line'])
+            child = self.selected
+            child.center = touch.pos
+            with self.canvas:
+                touch.ud['line'] = Line(rectangle=(child.x - 5, child.y - 5,
+                                                   child.width + 10, child.height + 10), width=1,
+                                        dash_length=5, dash_offset=2)
+
+    def on_touch_up(self, touch):
+        if self.select.state == 'down' and self.sel == True:
+            self.canvas.remove(touch.ud['line'])
+            self.sel = False
+        if touch.x < 100 and touch.y < 100:
+            return super(FloorCanvas, self).on_touch_down(touch)
+        if self.draw.state == 'down':
+            self.counter += 1
+            ball = SchemeRectangle()
+            ball.center = touch.pos
+            ball.counter = self.counter
+            self.add_widget(ball)
 
     def _get_floor_data(self) -> list:
         pass
@@ -251,7 +342,13 @@ class FloorCanvas(Widget):
         pass
 
     def add_rectangle(self):
-        self.canvas.add(Rectangle())
+        pass
+        # scatter = Scatter()
+        # scatter.add_widget(SchemeRectangle())
+        # scatter.add_widget(Label(text="Test"))
+        # self.add_widget(SchemeRectangle())
+        # self.add_widget(SchemeWidget(SchemeObject()))
+        # self.add_widget(DragLabel(text="gdfgdfg"))
 
     def add_sensor(self):
         pass

@@ -9,6 +9,20 @@ from GUI.Features.weather_widget import WeatherBoxWidget
 
 import os
 
+
+def load_name() -> str:
+    # in the future loading from json
+    name = 'NOT FOUND'
+    try:
+        with open('./Data/user.json', 'r') as file:
+            user = json.loads(file.read())
+            name = user['first_name']
+    except FileNotFoundError:
+        pass
+
+    return name
+
+
 class HomePage(GridLayout):
 
     user = StringProperty("--")
@@ -27,28 +41,14 @@ class HomePage(GridLayout):
 
         Clock.schedule_interval(lambda _: self.weather_widget.load(), 60)
 
-
-    def load_name(self) -> str:
-        # in the future loading from json
-        name = 'NOT FOUND'
-        try:
-            with open('./Data/user.json', 'r') as file:
-                user = json.loads(file.read())
-                name = user['first_name']
-        except FileNotFoundError:
-            pass
-
-        return name
-
-
     def load(self):
         print("Loading user name in home page.")
-        self.user = self.load_name()
+        self.user = load_name()
         self.hello_message = f'Welcome {self.user}!'
 
         self.clear_widgets()
 
-        user = self.load_name()
+        user = load_name()
         hello_message = f'Welcome {user}!'
         hello_text = Label(text=hello_message, font_size=50, height=100)
 

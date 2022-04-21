@@ -1,0 +1,38 @@
+<SchemeObject>:
+    size_hint: None, None
+    size: 50,50
+    canvas:
+        Color:
+            rgb: 0,1,1
+        Ellipse:
+            pos: self.pos
+            size: self.size
+    Label:
+        size: 50,10
+        pos: root.x,root.y+35
+        text: str(root.counter)
+
+<FloorCanvas>:
+    draw: draw
+    select: select
+    canvas:
+        Color:
+            rgb: 0,1,0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    ToggleButton:
+        id: draw
+        size_hint: None, None
+        size: 100,50
+        pos: 0,0
+        state: 'down'
+        text: 'Draw'
+        group: 'mode'
+    ToggleButton:
+        id: select
+        size_hint: None, None
+        size: 100,50
+        pos: 0,50
+        text: 'Select'
+        group: 'mode'
