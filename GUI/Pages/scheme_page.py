@@ -221,11 +221,11 @@ class FloorCanvas(Widget):
         super().__init__(**kwargs)
         self.floor_number = floor_number
         self.schema_page = schema_page
-        self.objects = []
+        self.objects: list[SchemeObject] = []
 
         # Arranging Canvas
         with self.canvas:
-            Color(.234, .456, .678, .8)  # set the colour
+            Color(0,0,0,.5)  # set the colour
 
             # Setting the size and position of canvas
             self.rect = Rectangle(pos=self.center,
@@ -238,20 +238,11 @@ class FloorCanvas(Widget):
 
         # update function which makes the canvas adjustable.
 
+        self.add_rectangle()
+
     def update_rect(self, *args):
         self.rect.pos = self.pos
         self.rect.size = self.size
-
-    def on_touch_down(self, touch):
-        if self.schema_page.is_in_edit_mode():
-            color = (random(), 1, 1)
-            with self.canvas:
-                Color(*color, mode='hsv')
-                touch.ud['line'] = Line(points=(touch.x, touch.y))
-
-    def on_touch_move(self, touch):
-        if self.schema_page.is_in_edit_mode() and 'line' in touch.ud.keys():
-            touch.ud['line'].points += [touch.x, touch.y]
 
     def _get_floor_data(self) -> list:
         pass
@@ -259,6 +250,11 @@ class FloorCanvas(Widget):
     def save_floor_data(self) -> list:
         pass
 
+    def add_rectangle(self):
+        self.canvas.add(Rectangle())
+
+    def add_sensor(self):
+        pass
 
 class FloorSelector(GridLayout):
     _DEFAULT_BUTTON_TEXT = "Floor %d"
