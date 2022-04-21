@@ -245,8 +245,8 @@ class SchemeRectangle(SchemeObject):
         return {
             "x": self.pos[0],
             "y": self.pos[1],
-            "width": self.x,
-            "height": self.y,
+            "width": self.size[0],
+            "height": self.size[1],
         }
 
     def change_position(self, pos):
@@ -271,10 +271,10 @@ class SchemeSensor(SchemeObject):
 
     def get_data(self):
         return {
-            "x": self.pos.x,
-            "y": self.pos.y,
-            "width": self.x,
-            "height": self.y,
+            "x": self.pos[0],
+            "y": self.pos[1],
+            "width": self.size[0],
+            "height": self.size[1],
             "type": self.sensor.type,
             "topic": self.sensor.topic
         }
