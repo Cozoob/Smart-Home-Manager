@@ -22,11 +22,12 @@ from typing import List
 from kivy_garden.draggable import (
     KXDraggableBehavior, KXDroppableBehavior,
 )
+import json
 
 # def get_max_floors_amount():
 #     return SchemePage._MAX_FLOORS_AMOUNT
 from kivy_garden.drag_n_drop import DraggableLayoutBehavior, DraggableObjectBehavior, DraggableController
-
+Builder.load_file("GUI/Pages/scheme_page.kv")
 
 class SchemePage(FloatLayout):
     _SCREEN_NAME = "Floor %d"
@@ -126,7 +127,15 @@ class SchemePage(FloatLayout):
 
     def save_changes(self):
         # todo
-        pass
+        values = []
+        for floor in self.floors:
+            values.append(floor.saved_floor_data())
+
+        try:
+            with open("./Data/tmp.json", "w") as file:
+                json.dump(values, file)
+        except FileNotFoundError:
+            print("Cannot save changes.")
 
     def pop_floor(self):
         if len(self.floors) <= 1:
@@ -167,7 +176,7 @@ class SchemePage(FloatLayout):
 #         self.parent.remove_widget(self)
 
 
-Builder.load_file("GUI/Pages/scheme_page.kv")
+
 
 class SchemeObject(BoxLayout):
     """
@@ -234,10 +243,10 @@ class SchemeRectangle(SchemeObject):
 
     def get_data(self):
         return {
-            "x": self.pos.x,
-            "y": self.pos.y,
-            "width": self.size.x,
-            "height": self.size.y,
+            "x": self.pos[0],
+            "y": self.pos[1],
+            "width": self.x,
+            "height": self.y,
         }
 
     def change_position(self, pos):
@@ -264,8 +273,8 @@ class SchemeSensor(SchemeObject):
         return {
             "x": self.pos.x,
             "y": self.pos.y,
-            "width": self.size.x,
-            "height": self.size.y,
+            "width": self.x,
+            "height": self.y,
             "type": self.sensor.type,
             "topic": self.sensor.topic
         }
@@ -333,13 +342,17 @@ class FloorCanvas(RelativeLayout):
             ball = SchemeRectangle()
             ball.center = touch.pos
             ball.counter = self.counter
+            self.objects.append(ball)
             self.add_widget(ball)
 
     def _get_floor_data(self) -> list:
         pass
 
-    def save_floor_data(self) -> list:
-        pass
+    def saved_floor_data(self) -> list:
+        arr = []
+        for obj in self.objects:
+            arr.append(obj.get_data())
+        return arr
 
     def add_rectangle(self):
         pass
