@@ -1,6 +1,6 @@
 from random import random
 
-from abc import abstractproperty, abstractmethod
+from abc import abstractproperty, abstractmethod, ABC
 
 from kivy.graphics import Canvas, Color, Ellipse, Line
 from kivy.lang import Builder
@@ -9,6 +9,7 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.popup import Popup
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -16,6 +17,7 @@ from kivy.uix.scatter import Scatter
 from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, FallOutTransition, RiseInTransition, \
     NoTransition
+from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color
 from typing import List
@@ -28,6 +30,7 @@ import json
 # def get_max_floors_amount():
 #     return SchemePage._MAX_FLOORS_AMOUNT
 Builder.load_file("GUI/Pages/scheme_page.kv")
+
 
 class SchemePage(FloatLayout):
     _SCREEN_NAME = "Floor %d"
@@ -56,7 +59,7 @@ class SchemePage(FloatLayout):
         self.screen_manager = ScreenManager(transition=NoTransition())
 
         for _ in range(self._get_schema_floors_amount()):
-            self.add_floor()
+            self.add_floor_press_ok("")
 
         self.change_floor(self._selected_floor)
         self.floor_selector.select_button(self._selected_floor)
@@ -116,8 +119,13 @@ class SchemePage(FloatLayout):
         if len(self.floors) >= SchemePage._MAX_FLOORS_AMOUNT:
             return
 
+        self.__popup_window_scheme(label_text='Provide the name of file with extension for the picture!',
+                                   button_text='Add', title='Add floor', fun_on_press=self.add_floor_press_ok)
+
+    def add_floor_press_ok(self, filename: str):
+
         screen = Screen(name=SchemePage._SCREEN_NAME % len(self.floors))
-        floor = FloorCanvas(self, len(self.floors))
+        floor = FloorCanvas(self, len(self.floors), filename)
         screen.add_widget(floor)
         self.screen_manager.add_widget(screen)
         self.floors.append(floor)
@@ -154,28 +162,40 @@ class SchemePage(FloatLayout):
     def get_current_floor(self):
         return self.floors[self._selected_floor]
 
+    def edit_scheme(self):
+        self.__popup_window_scheme(label_text='Provide the name of file with extension for the picture!',
+                                   button_text='Edit', title='Edit scheme',
+                                   fun_on_press=self.floors[self._selected_floor].edit_scheme)
+
+    def __popup_window_scheme(self, label_text: str, button_text: str, title: str, fun_on_press):
+        """
+        :param fun_on_press: Must be a function with :param filename: str.
+        """
+        boxlayout = BoxLayout(orientation="vertical")
+        boxlayout.add_widget(Label(text=label_text, size=(370, 35),
+                                   size_hint=[None, None]))
+        inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
+        boxlayout.add_widget(inp_area)
+
+        save_close_button = Button(text=button_text, size=(50, 50), size_hint=[None, None])
+        boxlayout.add_widget(save_close_button)
+
+        popup = Popup(title=title,
+                      content=boxlayout,
+                      size_hint=(None, None), size=(400, 200))
+
+        def __close_add_floor(instance):
+            popup.dismiss()
+            filename = inp_area.text
+
+            fun_on_press(filename)
+
+        save_close_button.bind(on_press=__close_add_floor)
+        popup.open()
+
     @property
     def MAX_FLOORS_AMOUNT(self) -> int:
         return self._MAX_FLOORS_AMOUNT
-
-
-# drag_controller = DraggableController()
-#
-# class DragLabel(KXDraggableBehavior, Label):
-#
-#     # def __init__(self, **kwargs):
-#     #     super(DragLabel, self).__init__(
-#     #         **kwargs)
-#     #     self.size_hint = [0.1,0.1]
-#     #     self.size = [100,100]
-#     #     self.pos = self.center
-#
-#     async def on_drag_fail(self, touch):
-#         import asynckivy as ak
-#         await ak.animate(self, opacity=0)
-#         self.parent.remove_widget(self)
-
-
 
 
 class SchemeObject(BoxLayout):
@@ -186,9 +206,7 @@ class SchemeObject(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.selected = False
-        self.size_hint = [None,None]
-
-
+        self.size_hint = [None, None]
 
     # def on_touch_down(self, touch):
     #     self.selected = True
@@ -217,57 +235,12 @@ class SchemeObject(BoxLayout):
         pass
 
 
-class SchemeRectangle(SchemeObject):
+class SchemeSensor(SchemeObject):
     counter = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         label = Label(text="Drag me!", pos=self.pos)
-        # Arranging Canvas
-        with self.canvas.before:
-            Color(0, 0, 0, .5)  # set the colour
-
-            # Setting the size and position of canvas
-            self.rect = Rectangle(pos=self.center,
-                                  size=(self.width,
-                                        self.height))
-
-            # Update the canvas as the screen size change
-            self.bind(pos=self.update_rect,
-                      size=self.update_rect)
-
-    # update function which makes the canvas adjustable.
-    def update_rect(self, *args):
-        self.rect.pos = self.pos
-        self.rect.size = self.size
-
-    def get_data(self):
-        return {
-            "x": self.pos[0],
-            "y": self.pos[1],
-            "width": self.size[0],
-            "height": self.size[1],
-        }
-
-    def change_position(self, pos):
-        self.pos = pos
-
-    def change_size(self, size):
-        pass
-        # self.size = size
-
-    def select(self):
-        pass
-
-    def unselect(self):
-        pass
-
-
-class SchemeSensor(SchemeObject):
-
-    def __init__(self, sensor, **kwargs):
-        super().__init__(**kwargs)
-        self.sensor = sensor
 
     def get_data(self):
         return {
@@ -299,27 +272,19 @@ class FloorCanvas(RelativeLayout):
     sel = BooleanProperty(False)
     image_names = [img for img in listdir("./Resources/Images/")]
 
-    def __init__(self, schema_page: SchemePage, floor_number: int, **kwargs):
+    def __init__(self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs):
         super().__init__(**kwargs)
-        print(type(floor_number))
+
         self.floor_number = floor_number
         self.schema_page = schema_page
         self.objects: List[SchemeObject] = []
 
-        self.add_rectangle()
+        if filename not in self.image_names:
+            filename = "noimage.jpg"
 
-        print(type(self.floor_number))
-
-        if self.floor_number < 5:
-            image_name = self.image_names[floor_number]
-        else:
-            image_name = self.image_names[0]
-
+        image_name = filename
         self.image = self.load_image(image_name)
-        # with self.canvas.before:
-        #     Rectangle(pos=self.pos,size=self.size,source=image_name)
         self.add_widget(self.image)
-
 
     def on_touch_down(self, touch):
         if touch.x < 100 and touch.y < 100:
@@ -354,7 +319,7 @@ class FloorCanvas(RelativeLayout):
             return super(FloorCanvas, self).on_touch_down(touch)
         if self.draw.state == 'down':
             self.counter += 1
-            ball = SchemeRectangle()
+            ball = SchemeSensor()
             ball.center = touch.pos
             ball.counter = self.counter
             self.objects.append(ball)
@@ -375,6 +340,16 @@ class FloorCanvas(RelativeLayout):
     def add_sensor(self):
         pass
 
+    def edit_scheme(self, filename: str):
+        self.remove_widget(self.image)
+        if filename not in self.image_names:
+            filename = "noimage.jpg"
+
+        print(filename)
+        image_name = filename
+        self.image = self.load_image(image_name)
+        self.add_widget(self.image)
+
     def load_image(self, image_name: str) -> Image:
         try:
             file_path = "./Resources/Images/" + image_name
@@ -382,8 +357,6 @@ class FloorCanvas(RelativeLayout):
                 return Image(source=file_path)
         except FileNotFoundError:
             pass
-
-
 
 
 class FloorSelector(GridLayout):
@@ -444,7 +417,7 @@ class FloorSelector(GridLayout):
 class EditToolBox(GridLayout):
     def __init__(self, schema_page: SchemePage, **kwargs):
         super().__init__(**kwargs)
-        self.rows = 4
+        self.rows = 5
         self.cols = 1
         self.size = (75, 300)
         self.size_hint = (None, None)
@@ -459,21 +432,18 @@ class EditToolBox(GridLayout):
         def pop(instance):
             self.schema_page.pop_floor()
 
-        def square(instance):
-            self.schema_page.get_current_floor()
-
-        def line(instance):
-            self.schema_page.get_current_floor()
-
         def sensor(instance):
             self.schema_page.get_current_floor()
+
+        def scheme(instance):
+            self.schema_page.edit_scheme()
 
         def save(instance):
             self.schema_page.save_changes()
 
         # defining buttons
-        texts = ["Add Floor", "Pop Floor", "Sensor", "Save"]
-        functions = [add, pop, sensor, save]
+        texts = ["Add Floor", "Pop Floor", "Sensor", "Edit photo", "Save"]
+        functions = [add, pop, sensor, scheme, save]
 
         for text, f in zip(texts, functions):
             button = Button(text=text)

@@ -1,26 +1,6 @@
 {
   "scheme": [
     {
-       "rectangles": [
-        {
-          "x": 34,
-          "y": 12,
-          "width": 123,
-          "height": 12
-        },
-        {
-          "x": 34,
-          "y": 12,
-          "width": 123,
-          "height": 12
-        },
-        {
-          "x": 34,
-          "y": 12,
-          "width": 123,
-          "height": 12
-        }
-      ],
       "sensors": [
         {
           "x": 34,
@@ -32,22 +12,7 @@
         }
       ]
     },
-
     {
-       "rectangles": [
-        {
-          "x": 34,
-          "y": 12,
-          "width": 123,
-          "height": 12
-        },
-        {
-          "x": 34,
-          "y": 12,
-          "width": 123,
-          "height": 12
-        }
-      ],
       "sensors": [
         {
           "x": 34,
@@ -55,7 +20,7 @@
           "width": 12,
           "height": 12,
           "type": "haha",
-          "topic" : "/home/floor1/temp"
+          "topic" : "/home/floor2/temp"
         }
       ]
     }
