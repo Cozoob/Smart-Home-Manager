@@ -22,6 +22,7 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color
 from typing import List
 from kivy.uix.image import Image
+from kivy.uix.dropdown import DropDown
 
 from os import listdir
 
@@ -324,6 +325,7 @@ class FloorCanvas(RelativeLayout):
             ball.counter = self.counter
             self.objects.append(ball)
             self.add_widget(ball)
+            self.__pop_up_window_add_sensor()
 
     def _get_floor_data(self) -> list:
         pass
@@ -349,6 +351,46 @@ class FloorCanvas(RelativeLayout):
         image_name = filename
         self.image = self.load_image(image_name)
         self.add_widget(self.image)
+
+    def __pop_up_window_add_sensor(self):
+        boxlayout = BoxLayout(orientation="vertical")
+        boxlayout.add_widget(Label(text='Provide data', size=(370, 35),
+                                   size_hint=[None, None]))
+        # inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
+        # boxlayout.add_widget(inp_area)
+        sensor_types = ["temperature", "light", "fire", "other"]
+        dropdown = DropDown()
+        for type in sensor_types:
+            lbl = Label(text=type)
+            dropdown.add_widget(lbl)
+
+        def __on_select_list(instance):
+            print("eh")
+
+        dropdown.bind(on_select=__on_select_list)
+        main_button = Button(text='Choose type')
+        # main_button.bind(on_release=dropdown.open)
+        main_button.bind(on_release=dropdown.open)
+        # dropdown.bind(on_select=lambda instance, x: setattr(main_button, 'text', x))
+
+        boxlayout.add_widget(main_button)
+
+        save_close_button = Button(text='Add sensor', size=(100, 50), size_hint=[None, None])
+        boxlayout.add_widget(save_close_button)
+
+        popup = Popup(title='Add sensor',
+                      content=boxlayout,
+                      size_hint=(None, None), size=(400, 200))
+
+        def __close_add_floor(instance):
+            popup.dismiss()
+            # filename = inp_area.text
+
+            # fun_on_press(filename)
+
+        save_close_button.bind(on_press=__close_add_floor)
+        popup.open()
+
 
     def load_image(self, image_name: str) -> Image:
         try:
@@ -449,5 +491,3 @@ class EditToolBox(GridLayout):
             button = Button(text=text)
             button.bind(on_press=f)
             self.add_widget(button)
-
-        # adding drawing option
