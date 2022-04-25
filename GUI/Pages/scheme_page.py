@@ -4,7 +4,7 @@ from abc import abstractproperty, abstractmethod, ABC
 
 from kivy.graphics import Canvas, Color, Ellipse, Line
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty
+from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty, ListProperty
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -30,6 +30,7 @@ import json
 
 # def get_max_floors_amount():
 #     return SchemePage._MAX_FLOORS_AMOUNT
+
 Builder.load_file("GUI/Pages/scheme_page.kv")
 
 
@@ -60,7 +61,7 @@ class SchemePage(FloatLayout):
         self.screen_manager = ScreenManager(transition=NoTransition())
 
         for _ in range(self._get_schema_floors_amount()):
-            self.add_floor_press_ok("")
+            self.add_floor()
 
         self.change_floor(self._selected_floor)
         self.floor_selector.select_button(self._selected_floor)
@@ -120,10 +121,13 @@ class SchemePage(FloatLayout):
         if len(self.floors) >= SchemePage._MAX_FLOORS_AMOUNT:
             return
 
+        self.add_floor_press_ok()
+
+    def pop_up_window_add_floor(self):
         self.__popup_window_scheme(label_text='Provide the name of file with extension for the picture!',
                                    button_text='Add', title='Add floor', fun_on_press=self.add_floor_press_ok)
 
-    def add_floor_press_ok(self, filename: str):
+    def add_floor_press_ok(self, filename: str = ""):
 
         screen = Screen(name=SchemePage._SCREEN_NAME % len(self.floors))
         floor = FloorCanvas(self, len(self.floors), filename)
@@ -224,10 +228,6 @@ class SchemeObject(BoxLayout):
         pass
 
     @abstractmethod
-    def change_size(self, size):
-        pass
-
-    @abstractmethod
     def select(self):
         pass
 
@@ -237,11 +237,36 @@ class SchemeObject(BoxLayout):
 
 
 class SchemeSensor(SchemeObject):
+    __SELECTED_COLOR = [1, 0, 1]
+    __DEFAULT_COLOR = [0, 1, 0]
+
     counter = NumericProperty(0)
+    color = ListProperty(__DEFAULT_COLOR)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        label = Label(text="Drag me!", pos=self.pos)
+        self.size = [50, 50]
+        self.selected = False
+        with self.canvas:
+
+            self.ellipse = Ellipse(pos=self.pos, size=self.size)
+
+            self.line = Line(rectangle=(self.x, self.y, 0, 0), width=1,
+                             dash_length=5, dash_offset=2)
+
+        self.bind(pos=self._update_ellipse, size=self._update_ellipse)
+        self.bind(pos=self._update_line, size=self._update_line)
+
+    def _update_ellipse(self, *args):
+        self.ellipse.pos = self.pos
+        self.ellipse.size = self.size
+
+    def _update_line(self, *args):
+        if self.selected:
+            self.line.rectangle = (self.x - 5, self.y - 5,
+                                   self.width + 10, self.height + 10)
+        else:
+            self.line.rectangle = (self.x,self.y,0,0)
 
     def get_data(self):
         return {
@@ -256,21 +281,21 @@ class SchemeSensor(SchemeObject):
     def change_position(self, pos):
         self.pos = pos
 
-    def change_size(self, size):
-        pass
-        # self.size = size
-
     def select(self):
-        pass
+        self.selected = True
+        self._update_line()
+        self._update_ellipse()
+        self.color = self.__SELECTED_COLOR
 
     def unselect(self):
-        pass
+        self.selected = False
+        self._update_line()
+        self._update_ellipse()
+        self.color = self.__DEFAULT_COLOR
 
 
 class FloorCanvas(RelativeLayout):
     counter = NumericProperty(0)
-    # selected = ObjectProperty(None)
-    sel = BooleanProperty(False)
     image_names = [img for img in listdir("./Resources/Images/")]
 
     def __init__(self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs):
@@ -279,6 +304,16 @@ class FloorCanvas(RelativeLayout):
         self.floor_number = floor_number
         self.schema_page = schema_page
         self.objects: List[SchemeObject] = []
+        self.selected_object: SchemeObject = None
+
+        with self.canvas:
+            Color(1, 1, 1)
+            self.rect = Rectangle(pos=self.center,
+                                  size=(self.width,
+                                        self.height))
+
+            self.bind(pos=self._update_rect,
+                      size=self._update_rect)
 
         if filename not in self.image_names:
             filename = "noimage.jpg"
@@ -287,45 +322,41 @@ class FloorCanvas(RelativeLayout):
         self.image = self.load_image(image_name)
         self.add_widget(self.image)
 
+    def _update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
     def on_touch_down(self, touch):
-        if touch.x < 100 and touch.y < 100:
-            return super(FloorCanvas, self).on_touch_down(touch)
-        if self.select.state == 'down':
-            for child in self.children:
-                if child.collide_point(*touch.pos):
-                    self.selected = child
-                    self.sel = True
-                    with self.canvas:
-                        Color(0, 0, 0)
-                        touch.ud['line'] = Line(rectangle=(child.x - 5,
-                                                           child.y - 5, child.width + 10, child.height + 10),
-                                                dash_length=5, dash_offset=2)
+        if self.schema_page.is_in_edit_mode():
+
+            # unselect all objects
+            self.selected_object = None
+            for obj in self.objects:
+                obj.unselect()
+
+            # find and select one that collides
+            for obj in self.objects[::-1]:
+                if obj.collide_point(*touch.pos):
+                    self.selected_object = obj
+                    obj.select()
+
                     break
 
+        else:
+            # TODO
+            # CHECK IF SENSOR CLICKED AND IF YES OPEN INFO POP UP WINDOW
+            pass
+
     def on_touch_move(self, touch):
-        if self.select.state == 'down' and self.sel == True:
-            self.canvas.remove(touch.ud['line'])
-            child = self.selected
-            child.center = touch.pos
-            with self.canvas:
-                touch.ud['line'] = Line(rectangle=(child.x - 5, child.y - 5,
-                                                   child.width + 10, child.height + 10), width=1,
-                                        dash_length=5, dash_offset=2)
+        if self.schema_page.is_in_edit_mode():
+
+            if self.selected_object is not None:
+                self.selected_object.center = touch.pos
+
 
     def on_touch_up(self, touch):
-        if self.select.state == 'down' and self.sel == True:
-            self.canvas.remove(touch.ud['line'])
-            self.sel = False
-        if touch.x < 100 and touch.y < 100:
-            return super(FloorCanvas, self).on_touch_down(touch)
-        if self.draw.state == 'down':
-            self.counter += 1
-            ball = SchemeSensor()
-            ball.center = touch.pos
-            ball.counter = self.counter
-            self.objects.append(ball)
-            self.add_widget(ball)
-            self.__pop_up_window_add_sensor()
+        if self.schema_page.is_in_edit_mode():
+            pass
 
     def _get_floor_data(self) -> list:
         pass
@@ -336,11 +367,20 @@ class FloorCanvas(RelativeLayout):
             arr.append(obj.get_data())
         return arr
 
-    def add_rectangle(self):
-        pass
-
     def add_sensor(self):
-        pass
+        sensor = SchemeSensor(pos=[30, 30])
+        self.add_widget(sensor)
+        self.objects.append(sensor)
+
+    def remove_selected_object(self):
+        if self.selected_object is None:
+            return
+
+        self.selected_object.unselect()
+        self.remove_widget(self.selected_object)
+        self.objects.remove(self.selected_object)
+        self.selected_object = None
+
 
     def edit_scheme(self, filename: str):
         self.remove_widget(self.image)
@@ -350,9 +390,13 @@ class FloorCanvas(RelativeLayout):
         print(filename)
         image_name = filename
         self.image = self.load_image(image_name)
-        self.add_widget(self.image)
+        self.add_widget(self.image, index=10)
+        # with self.canvas.before:
+        # Color(0,0,0)
+        # Rectangle(source=image_name)
+        # self.bind(...)
 
-    def __pop_up_window_add_sensor(self):
+    def pop_up_window_add_sensor(self):
         boxlayout = BoxLayout(orientation="vertical")
         boxlayout.add_widget(Label(text='Provide data', size=(370, 35),
                                    size_hint=[None, None]))
@@ -384,13 +428,14 @@ class FloorCanvas(RelativeLayout):
 
         def __close_add_floor(instance):
             popup.dismiss()
+            self.add_sensor()
+            # todo
             # filename = inp_area.text
 
             # fun_on_press(filename)
 
         save_close_button.bind(on_press=__close_add_floor)
         popup.open()
-
 
     def load_image(self, image_name: str) -> Image:
         try:
@@ -459,9 +504,9 @@ class FloorSelector(GridLayout):
 class EditToolBox(GridLayout):
     def __init__(self, schema_page: SchemePage, **kwargs):
         super().__init__(**kwargs)
-        self.rows = 5
+        self.rows = 6
         self.cols = 1
-        self.size = (75, 300)
+        self.size = (75, 350)
         self.size_hint = (None, None)
 
         # own variables
@@ -474,8 +519,11 @@ class EditToolBox(GridLayout):
         def pop(instance):
             self.schema_page.pop_floor()
 
-        def sensor(instance):
-            self.schema_page.get_current_floor()
+        def sensor_add(instance):
+            self.schema_page.get_current_floor().pop_up_window_add_sensor()
+
+        def sensor_remove(instance):
+            self.schema_page.get_current_floor().remove_selected_object()
 
         def scheme(instance):
             self.schema_page.edit_scheme()
@@ -484,8 +532,8 @@ class EditToolBox(GridLayout):
             self.schema_page.save_changes()
 
         # defining buttons
-        texts = ["Add Floor", "Pop Floor", "Sensor", "Edit photo", "Save"]
-        functions = [add, pop, sensor, scheme, save]
+        texts = ["Add Floor", "Pop Floor", "+ Sensor", "- Sensor", "Edit photo", "Save"]
+        functions = [add, pop, sensor_add, sensor_remove, scheme, save]
 
         for text, f in zip(texts, functions):
             button = Button(text=text)
