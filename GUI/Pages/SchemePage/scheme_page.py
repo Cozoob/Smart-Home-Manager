@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from random import random
 
 from abc import abstractproperty, abstractmethod, ABC
@@ -180,8 +181,10 @@ class SchemePage(FloatLayout):
     def load_data(self):
         print("Loading scheme data in scheme page.")
         with open("./Data/scheme.json", "r") as scheme_file:
-            data = json.loads(scheme_file.read())
-
+            try:
+                data = json.loads(scheme_file.read())
+            except JSONDecodeError:
+                data = []
 
             for floor_data in data:
                 filename = floor_data["floor"]["image"]
@@ -192,6 +195,7 @@ class SchemePage(FloatLayout):
                     self.add_floor()
 
                 # save this...
+                self.save_changes()
 
 
     def pop_floor(self):
@@ -296,7 +300,7 @@ class FloorCanvas(RelativeLayout):
                     break
 
         else:
-            print(self.objects)
+            print(self.objects) # TODO DELETE
             # unselect all objects
             self.selected_object = None
             for obj in self.objects:
