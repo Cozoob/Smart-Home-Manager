@@ -3,6 +3,10 @@ from abc import abstractmethod
 from kivy.graphics import Ellipse, Line
 from kivy.properties import NumericProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 
 
 class SchemeObject(BoxLayout):
@@ -38,6 +42,10 @@ class SchemeObject(BoxLayout):
 
     @abstractmethod
     def set_available_state(self):
+        pass
+
+    @abstractmethod
+    def show_popup_window(self):
         pass
 
 
@@ -104,4 +112,19 @@ class SchemeSensor(SchemeObject):
     def set_available_state(self):
         self.color = self.__DEFAULT_COLOR
 
+    def show_popup_window(self):
+        boxlayout = BoxLayout(orientation="vertical")
+        boxlayout.add_widget(Label(text="Sensor details", size=(370, 35),
+                                   size_hint=[None, None]))
+        inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
+        boxlayout.add_widget(inp_area)
 
+        save_close_button = Button(text="Close", size=(50, 50), size_hint=[None, None])
+        boxlayout.add_widget(save_close_button)
+
+        popup = Popup(title='Add sensor',
+                      content=boxlayout,
+                      size_hint=(None, None), size=(400, 200))
+
+        save_close_button.bind(on_press=popup.dismiss)
+        popup.open()

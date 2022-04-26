@@ -253,10 +253,23 @@ class FloorCanvas(RelativeLayout):
                     break
 
         else:
-            # TODO
-            # CHECK IF SENSOR CLICKED AND IF YES OPEN INFO POP UP WINDOW
-            print("Show sensor detail pop up window")
-            pass
+            print(self.objects)
+            # unselect all objects
+            self.selected_object = None
+            for obj in self.objects:
+                obj.unselect()
+
+            # find and select one that collides
+            for obj in self.objects[::-1]:
+                if obj.collide_point(*touch.pos):
+                    self.selected_object = obj
+                    obj.select()
+
+                    break
+
+            if self.selected_object:
+                self.selected_object.show_popup_window()
+
 
     def on_touch_move(self, touch):
         if self.schema_page.is_in_edit_mode():
