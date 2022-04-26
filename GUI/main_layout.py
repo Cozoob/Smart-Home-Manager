@@ -1,6 +1,6 @@
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 
-from GUI.Pages.scheme_page import SchemePage
+from GUI.Pages.SchemePage.scheme_page import SchemePage
 from GUI.Pages.settings_page import SettingsPage
 from GUI.Pages.home_page import HomePage
 
