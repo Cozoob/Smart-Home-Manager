@@ -1,6 +1,8 @@
-{
-  "scheme": [
+[
     {
+      "floor":{
+        "image": "scheme1.jpg"
+      },
       "sensors": [
         {
           "x": 34,
@@ -13,6 +15,9 @@
       ]
     },
     {
+      "floor":{
+        "image": ""
+      },
       "sensors": [
         {
           "x": 34,
@@ -24,5 +29,4 @@
         }
       ]
     }
-  ]
-}
+]

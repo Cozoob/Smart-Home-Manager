@@ -61,8 +61,8 @@ class SchemePage(FloatLayout):
         self.floor_selector = FloorSelector(self, size_hint=(1, None), size=(1280, 100))
         self.screen_manager = ScreenManager(transition=NoTransition())
 
-        for _ in range(self._get_schema_floors_amount()):
-            self.add_floor()
+        # loading data
+        self.load_data()
 
         self.change_floor(self._selected_floor)
         self.floor_selector.select_button(self._selected_floor)
@@ -140,16 +140,59 @@ class SchemePage(FloatLayout):
         self.floor_selector.add_button()
 
     def save_changes(self):
-        # todo
-        values = []
-        for floor in self.floors:
-            values.append(floor.saved_floor_data())
+        print("Save scheme changes...")
+
+        data = []
+
+        for idx, floor in enumerate(self.floors):
+            data.append({"floor": {"image": ""}, "sensors": []})
+
+            data_floor = floor.save_floor_data()
+            image_name = data_floor[0]
+            sensors_data = data_floor[1:]
+
+            data[idx]["floor"]["image"] = image_name
+
+            if not len(sensors_data):
+                # save sensors info
+                pass
+
+        print(data)
 
         try:
-            with open("./Data/tmp.json", "w") as file:
-                json.dump(values, file)
+            with open("./Data/scheme.json", "w") as file:
+                json.dump(data, file)
         except FileNotFoundError:
             print("Cannot save changes.")
+
+
+        # todo
+        # values = []
+        # for floor in self.floors:
+        #     values.append(floor.saved_floor_data())
+        #
+        # try:
+        #     with open("./Data/tmp.json", "w") as file:
+        #         json.dump(values, file)
+        # except FileNotFoundError:
+        #     print("Cannot save changes.")
+
+    def load_data(self):
+        print("Loading scheme data in scheme page.")
+        with open("./Data/scheme.json", "r") as scheme_file:
+            data = json.loads(scheme_file.read())
+
+
+            for floor_data in data:
+                filename = floor_data["floor"]["image"]
+                self.add_floor_press_ok(filename)
+
+            if len(data) == 0:
+                for _ in range(2):
+                    self.add_floor()
+
+                # save this...
+
 
     def pop_floor(self):
         if len(self.floors) <= 1:
@@ -163,7 +206,7 @@ class SchemePage(FloatLayout):
         self.floor_selector.pop_button()
 
     def _get_schema_floors_amount(self) -> int:
-        return 2
+        return len(self.floors)
 
     def get_current_floor(self):
         return self.floors[self._selected_floor]
@@ -228,8 +271,8 @@ class FloorCanvas(RelativeLayout):
         if filename not in self.image_names:
             filename = "noimage.jpg"
 
-        image_name = filename
-        self.image = self.load_image(image_name)
+        self.image_name = filename
+        self.image = self.load_image(self.image_name)
         self.add_widget(self.image)
 
     def _update_rect(self, *args):
@@ -285,10 +328,15 @@ class FloorCanvas(RelativeLayout):
     def _get_floor_data(self) -> list:
         pass
 
-    def saved_floor_data(self) -> list:
+    def save_floor_data(self) -> list:
         arr = []
+
+        # the first position is always image filename
+        arr.append(self.image_name)
+
         for obj in self.objects:
             arr.append(obj.get_data())
+
         return arr
 
     def add_sensor(self):
@@ -311,9 +359,8 @@ class FloorCanvas(RelativeLayout):
         if filename not in self.image_names:
             filename = "noimage.jpg"
 
-        print(filename)
-        image_name = filename
-        self.image = self.load_image(image_name)
+        self.image_name = filename
+        self.image = self.load_image(self.image_name)
         self.add_widget(self.image, index=10)
         # with self.canvas.before:
         # Color(0,0,0)
