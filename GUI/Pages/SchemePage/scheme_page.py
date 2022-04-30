@@ -1,12 +1,7 @@
 from json import JSONDecodeError
-from random import random
 
-from abc import abstractproperty, abstractmethod, ABC
-
-from kivy.graphics import Canvas, Color, Ellipse, Line
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty, ListProperty
-from kivy.uix.behaviors import DragBehavior
+from kivy.properties import NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -14,12 +9,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
-from kivy.uix.scatter import Scatter
-from kivy.uix.scatterlayout import ScatterLayout
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, FallOutTransition, RiseInTransition, \
-    NoTransition
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.textinput import TextInput
-from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color
 from typing import List
 from kivy.uix.image import Image
@@ -31,9 +22,8 @@ import json
 
 # def get_max_floors_amount():
 #     return SchemePage._MAX_FLOORS_AMOUNT
-from GUI.Pages.SchemePage.scheme_object import SchemeObject, SchemeSensor
-
-Builder.load_file("GUI/Pages/SchemePage/scheme_page.kv")
+from GUI.Sensors.scheme_light_sensor import SchemeLightSensor
+from GUI.Sensors.scheme_object import SchemeObject, SchemeSensor
 
 
 class SchemePage(FloatLayout):
@@ -300,7 +290,7 @@ class FloorCanvas(RelativeLayout):
                     break
 
         else:
-            print(self.objects) # TODO DELETE
+            # print(self.objects) # TODO DELETE
             # unselect all objects
             self.selected_object = None
             for obj in self.objects:
@@ -344,7 +334,8 @@ class FloorCanvas(RelativeLayout):
         return arr
 
     def add_sensor(self):
-        sensor = SchemeSensor(pos=[30, 30])
+        # TODO EXTEND TO ALLOW TYPE SELECTION
+        sensor = SchemeLightSensor(pos=[30, 30])
         self.add_widget(sensor)
         self.objects.append(sensor)
 
