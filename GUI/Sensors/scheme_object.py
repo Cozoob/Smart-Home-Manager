@@ -106,8 +106,7 @@ class SchemeSensor(SchemeObject):
         self.bind(pos=self._update_icon, size=self._update_icon)
 
     def _add_name_label(self):
-        if self.label:
-            self.remove_widget(self.label)
+        self._remove_name_label()
 
         self.label = Label(
                 text=f"[color=000000]{self.sensor_name}[/color]",
@@ -116,6 +115,10 @@ class SchemeSensor(SchemeObject):
             )
 
         self.add_widget(self.label)
+
+    def _remove_name_label(self):
+        if self.label:
+            self.remove_widget(self.label)
 
     def get_data(self):
         return {
