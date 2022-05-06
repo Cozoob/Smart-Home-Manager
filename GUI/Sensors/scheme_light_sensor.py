@@ -1,9 +1,7 @@
-from abc import ABC
 from typing import Tuple
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
@@ -26,7 +24,7 @@ class SchemeLightSensor(SchemeSensor):
         super().set_background_image(self.MAIN_IMAGE)
 
     def get_popup_window_content(self) -> Tuple[Layout, Button]:
-        main_boxlayout = BoxLayout(orientation='vertical')
+        main_boxlayout = BoxLayout(orientation="vertical")
 
         # fields = [
         #     # header

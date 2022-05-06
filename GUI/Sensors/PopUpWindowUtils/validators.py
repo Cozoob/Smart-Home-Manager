@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
 
-from typing import List
-
 
 class Validator(ABC):
-
     @abstractmethod
-    def isValid(self, value) -> bool: ...
+    def isValid(self, value) -> bool:
+        ...
 
 
 class ValidatorAggregate(Validator):
-
     def __init__(self, validators=None):
         if validators is None:
             validators = []
@@ -33,12 +30,11 @@ class ValidatorAggregate(Validator):
 
 
 class ValidatorInt(Validator):
-
-    def __init__(self, min_value:int, max_value:int):
+    def __init__(self, min_value: int, max_value: int):
         self.min_value = min_value
         self.max_value = max_value
 
-    def isValid(self, value:int) -> bool:
+    def isValid(self, value: int) -> bool:
         if type(value) != int:
             return False
 
@@ -46,7 +42,6 @@ class ValidatorInt(Validator):
 
 
 class ValidatorFloat(Validator):
-
     def __init__(self, min_value: float, max_value: float):
         self.min_value = min_value
         self.max_value = max_value
