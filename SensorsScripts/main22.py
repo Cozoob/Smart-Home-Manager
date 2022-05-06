@@ -58,11 +58,10 @@ if __name__ == '__main__':
     # SUBSCRIBE
     connector = MQTTConnector(BROKER, PORT)
     time.sleep(0.5)
-    connector.subscribe("sensor-1/power_value")
+    # connector.subscribe("sensor-1/power_value")
     while True:
         time.sleep(5)
-        print("??")
-        connector.publish("sensor-1/turn_on", False)
+        connector.publish("sensor-0/open", False)
         time.sleep(10)
-        connector.publish("sensor-1/turn_on", True)
-        time.sleep(10)
+        # connector.publish("sensor-0/open", True)
+        # time.sleep(10)

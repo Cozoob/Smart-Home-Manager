@@ -11,6 +11,13 @@ if __name__ == "__main__":
     type_of_sensors = {
         "GasValveSensor": sensors.GasValveSensor,
         "SmartPlug": sensors.SmartPlug,
+        "Lock": sensors.Lock,
+        "GasDetector": sensors.GasDetector,
+        "Light": sensors.Light,
+        "TemperatureSensor": sensors.TemperatureSensor,
+        "HumidSensor": sensors.HumidSensor,
+        "RollerShade": sensors.RollerShade,
+        "GarageDoor": sensors.GarageDoor,
     }
 
     parser = argparse.ArgumentParser(description="Process input...")

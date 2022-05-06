@@ -20,9 +20,6 @@ class MQTTConnector:
         self.port = port
 
     def publish(self, topic: str, data: typing.Any):
-
-        msg_count = 0
-
         self.client.loop_start()
         self.client.publish(topic, data)
 

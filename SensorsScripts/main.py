@@ -60,8 +60,15 @@ if __name__ == "__main__":
     # C:\Users\mnkoz\PycharmProjects\Smart-Home-Manager\venv\Lib\site-packages\paho
     process_env["PYTHONPATH"] = cwd + ";" + process_env["PYTHONPATH"]
 
-    create_subprocess(sensors.GasValveSensor.__name__)
-    create_subprocess(sensors.SmartPlug.__name__)
+    # create_subprocess(sensors.GasValveSensor.__name__)
+    # create_subprocess(sensors.SmartPlug.__name__)
+    # create_subprocess(sensors.Lock.__name__)
+    # create_subprocess(sensors.GasDetector.__name__)
+    # create_subprocess(sensors.Light.__name__)
+    # create_subprocess(sensors.TemperatureSensor.__name__)
+    # create_subprocess(sensors.HumidSensor.__name__)
+    # create_subprocess(sensors.RollerShade.__name__)
+    create_subprocess(sensors.GarageDoor.__name__)
 
     while True:
         pass
