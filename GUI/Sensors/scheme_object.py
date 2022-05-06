@@ -32,13 +32,13 @@ class SchemeObject(FloatLayout):
     def unselect(self):
         pass
 
-    @abstractmethod
-    def set_unavailable_state(self):
-        pass
-
-    @abstractmethod
-    def set_available_state(self):
-        pass
+    # @abstractmethod
+    # def set_unavailable_state(self):
+    #     pass
+    #
+    # @abstractmethod
+    # def set_available_state(self):
+    #     pass
 
     @abstractmethod
     def show_popup_window(self):
@@ -58,7 +58,7 @@ class SchemeSensor(SchemeObject):
         super().__init__(**kwargs)
         self.size = [50, 50]
         self.selected = False
-        self.set_available_state()
+        # self.set_available_state()
         self.sensor_name = sensor_name
 
         self.sensor_icon : Widget = None
@@ -78,6 +78,8 @@ class SchemeSensor(SchemeObject):
         self.bind(pos=self._update_ellipse, size=self._update_ellipse)
         self.bind(pos=self._update_line, size=self._update_line)
 
+        self.unselect()
+
     def _update_ellipse(self, *args):
         self.background_ellipse.pos = self.pos
         self.background_ellipse.size = self.size
@@ -93,7 +95,7 @@ class SchemeSensor(SchemeObject):
         if self.sensor_icon:
             self.sensor_icon.center = self.center
 
-    def _set_background_image(self, image_path: str):
+    def set_background_image(self, image_path: str):
         if self.sensor_icon:
             self.remove_widget(self.sensor_icon)
 
@@ -143,10 +145,11 @@ class SchemeSensor(SchemeObject):
     def show_popup_window(self):
         content, button = self.get_popup_window_content()
 
-        popup = Popup(title='Add sensor',
+        popup = Popup(title='Sensor Details',
                       content=content,
                       size_hint=(None, None), size=(400, 200))
 
+        button.bind(on_press=popup.dismiss)
         button.bind(on_press=popup.dismiss)
         popup.open()
 

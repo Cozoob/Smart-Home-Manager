@@ -307,13 +307,11 @@ class FloorCanvas(RelativeLayout):
             if self.selected_object:
                 self.selected_object.show_popup_window()
 
-
     def on_touch_move(self, touch):
         if self.schema_page.is_in_edit_mode():
 
             if self.selected_object is not None:
                 self.selected_object.center = touch.pos
-
 
     def on_touch_up(self, touch):
         if self.schema_page.is_in_edit_mode():
@@ -378,6 +376,25 @@ class FloorCanvas(RelativeLayout):
             print("eh")
 
         dropdown.bind(on_select=__on_select_list)
+
+
+        # todo
+        def show_dropdown(button, *largs):
+            dp = DropDown()
+            dp.bind(on_select=lambda instance, x: setattr(button, 'text', x))
+            for i in range(10):
+                item = Button(text='hello %d' % i, size_hint_y=None, height=44)
+                item.bind(on_release=lambda btn: dp.select(btn.text))
+                dp.add_widget(item)
+            dp.open(button)
+
+        btn = Button(text='SHOW', size_hint=(None, None), pos=(300, 200))
+        btn.bind(on_release=show_dropdown)
+
+        boxlayout.add_widget(btn)
+        # todo
+
+
         main_button = Button(text='Choose type')
         # main_button.bind(on_release=dropdown.open)
         main_button.bind(on_release=dropdown.open)
@@ -390,7 +407,8 @@ class FloorCanvas(RelativeLayout):
 
         popup = Popup(title='Add sensor',
                       content=boxlayout,
-                      size_hint=(None, None), size=(400, 200))
+                      size_hint=(None, None),
+                      size=(400, 200))
 
         def __close_add_floor(instance):
             popup.dismiss()
