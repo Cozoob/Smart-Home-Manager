@@ -150,7 +150,7 @@ class SchemeSensor(SchemeObject):
             title="Sensor Details",
             content=content,
             size_hint=(None, None),
-            size=(400, 200),
+            size=content.size,
         )
 
         button.bind(on_press=popup.dismiss)
