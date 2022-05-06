@@ -90,7 +90,7 @@ class SchemeSensor(SchemeObject):
             "width": self.size[0],
             "height": self.size[1],
             "type": self.sensor.type,
-            "topic": self.sensor.topic
+            "topic": self.sensor.sender_topic
         }
 
     def change_position(self, pos):

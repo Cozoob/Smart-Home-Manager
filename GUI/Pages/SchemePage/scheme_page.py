@@ -5,7 +5,12 @@ from abc import abstractproperty, abstractmethod, ABC
 
 from kivy.graphics import Canvas, Color, Ellipse, Line
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty, ListProperty
+from kivy.properties import (
+    NumericProperty,
+    ObjectProperty,
+    BooleanProperty,
+    ListProperty,
+)
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -16,8 +21,14 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.scatter import Scatter
 from kivy.uix.scatterlayout import ScatterLayout
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, FallOutTransition, RiseInTransition, \
-    NoTransition
+from kivy.uix.screenmanager import (
+    ScreenManager,
+    Screen,
+    FadeTransition,
+    FallOutTransition,
+    RiseInTransition,
+    NoTransition,
+)
 from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, Color
@@ -54,7 +65,7 @@ class SchemePage(FloatLayout):
 
         # edit tools
         self.edit_button = self._create_edit_button()
-        self.edit_tools = EditToolBox(self, pos_hint={'left': 0, 'center_y': .5})
+        self.edit_tools = EditToolBox(self, pos_hint={"left": 0, "center_y": 0.5})
 
         # create and set up floor selector, screen manager and floor canvases
         self.grid_layout = GridLayout(rows=2, cols=1, size_hint=(1, 1))
@@ -101,17 +112,23 @@ class SchemePage(FloatLayout):
     def _create_edit_button(self) -> Button:
         def on_press(instance):
             self._edit_mode = not self._edit_mode
-            instance.text = SchemePage._EDIT_ON_MESSAGE if self._edit_mode else SchemePage._EDIT_OFF_MESSAGE
+            instance.text = (
+                SchemePage._EDIT_ON_MESSAGE
+                if self._edit_mode
+                else SchemePage._EDIT_OFF_MESSAGE
+            )
             if self._edit_mode:
                 self.turn_on_edit_mode()
             else:
                 self.turn_off_edit_mode()
 
         edit_button = Button(
-            text=SchemePage._EDIT_ON_MESSAGE if self._edit_mode else SchemePage._EDIT_OFF_MESSAGE,
-            pos_hint={'right': 1, 'center_y': 0.9},
+            text=SchemePage._EDIT_ON_MESSAGE
+            if self._edit_mode
+            else SchemePage._EDIT_OFF_MESSAGE,
+            pos_hint={"right": 1, "center_y": 0.9},
             size=(100, 100),
-            size_hint=(None, None)
+            size_hint=(None, None),
         )
         edit_button.bind(on_press=on_press)
         return edit_button
@@ -126,8 +143,12 @@ class SchemePage(FloatLayout):
         self.add_floor_press_ok()
 
     def pop_up_window_add_floor(self):
-        self.__popup_window_scheme(label_text='Provide the name of file with extension for the picture!',
-                                   button_text='Add', title='Add floor', fun_on_press=self.add_floor_press_ok)
+        self.__popup_window_scheme(
+            label_text="Provide the name of file with extension for the picture!",
+            button_text="Add",
+            title="Add floor",
+            fun_on_press=self.add_floor_press_ok,
+        )
 
     def add_floor_press_ok(self, filename: str = ""):
 
@@ -166,7 +187,6 @@ class SchemePage(FloatLayout):
         except FileNotFoundError:
             print("Cannot save changes.")
 
-
         # todo
         # values = []
         # for floor in self.floors:
@@ -197,7 +217,6 @@ class SchemePage(FloatLayout):
                 # save this...
                 self.save_changes()
 
-
     def pop_floor(self):
         if len(self.floors) <= 1:
             return
@@ -216,26 +235,34 @@ class SchemePage(FloatLayout):
         return self.floors[self._selected_floor]
 
     def edit_scheme(self):
-        self.__popup_window_scheme(label_text='Provide the name of file with extension for the picture!',
-                                   button_text='Edit', title='Edit scheme',
-                                   fun_on_press=self.floors[self._selected_floor].edit_scheme)
+        self.__popup_window_scheme(
+            label_text="Provide the name of file with extension for the picture!",
+            button_text="Edit",
+            title="Edit scheme",
+            fun_on_press=self.floors[self._selected_floor].edit_scheme,
+        )
 
-    def __popup_window_scheme(self, label_text: str, button_text: str, title: str, fun_on_press):
+    def __popup_window_scheme(
+        self, label_text: str, button_text: str, title: str, fun_on_press
+    ):
         """
         :param fun_on_press: Must be a function with :param filename: str.
         """
         boxlayout = BoxLayout(orientation="vertical")
-        boxlayout.add_widget(Label(text=label_text, size=(370, 35),
-                                   size_hint=[None, None]))
-        inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
+        boxlayout.add_widget(
+            Label(text=label_text, size=(370, 35), size_hint=[None, None])
+        )
+        inp_area = TextInput(text="", size=(370, 35), size_hint=[None, None])
         boxlayout.add_widget(inp_area)
 
-        save_close_button = Button(text=button_text, size=(50, 50), size_hint=[None, None])
+        save_close_button = Button(
+            text=button_text, size=(50, 50), size_hint=[None, None]
+        )
         boxlayout.add_widget(save_close_button)
 
-        popup = Popup(title=title,
-                      content=boxlayout,
-                      size_hint=(None, None), size=(400, 200))
+        popup = Popup(
+            title=title, content=boxlayout, size_hint=(None, None), size=(400, 200)
+        )
 
         def __close_add_floor(instance):
             popup.dismiss()
@@ -255,7 +282,9 @@ class FloorCanvas(RelativeLayout):
     counter = NumericProperty(0)
     image_names = [img for img in listdir("./Resources/Images/")]
 
-    def __init__(self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs):
+    def __init__(
+        self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs
+    ):
         super().__init__(**kwargs)
 
         self.floor_number = floor_number
@@ -265,12 +294,9 @@ class FloorCanvas(RelativeLayout):
 
         with self.canvas:
             Color(1, 1, 1)
-            self.rect = Rectangle(pos=self.center,
-                                  size=(self.width,
-                                        self.height))
+            self.rect = Rectangle(pos=self.center, size=(self.width, self.height))
 
-            self.bind(pos=self._update_rect,
-                      size=self._update_rect)
+            self.bind(pos=self._update_rect, size=self._update_rect)
 
         if filename not in self.image_names:
             filename = "noimage.jpg"
@@ -300,7 +326,7 @@ class FloorCanvas(RelativeLayout):
                     break
 
         else:
-            print(self.objects) # TODO DELETE
+            print(self.objects)  # TODO DELETE
             # unselect all objects
             self.selected_object = None
             for obj in self.objects:
@@ -317,13 +343,11 @@ class FloorCanvas(RelativeLayout):
             if self.selected_object:
                 self.selected_object.show_popup_window()
 
-
     def on_touch_move(self, touch):
         if self.schema_page.is_in_edit_mode():
 
             if self.selected_object is not None:
                 self.selected_object.center = touch.pos
-
 
     def on_touch_up(self, touch):
         if self.schema_page.is_in_edit_mode():
@@ -357,7 +381,6 @@ class FloorCanvas(RelativeLayout):
         self.objects.remove(self.selected_object)
         self.selected_object = None
 
-
     def edit_scheme(self, filename: str):
         self.remove_widget(self.image)
         if filename not in self.image_names:
@@ -373,8 +396,9 @@ class FloorCanvas(RelativeLayout):
 
     def pop_up_window_add_sensor(self):
         boxlayout = BoxLayout(orientation="vertical")
-        boxlayout.add_widget(Label(text='Provide data', size=(370, 35),
-                                   size_hint=[None, None]))
+        boxlayout.add_widget(
+            Label(text="Provide data", size=(370, 35), size_hint=[None, None])
+        )
         # inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
         # boxlayout.add_widget(inp_area)
         sensor_types = ["temperature", "light", "fire", "other"]
@@ -387,19 +411,24 @@ class FloorCanvas(RelativeLayout):
             print("eh")
 
         dropdown.bind(on_select=__on_select_list)
-        main_button = Button(text='Choose type')
+        main_button = Button(text="Choose type")
         # main_button.bind(on_release=dropdown.open)
         main_button.bind(on_release=dropdown.open)
         # dropdown.bind(on_select=lambda instance, x: setattr(main_button, 'text', x))
 
         boxlayout.add_widget(main_button)
 
-        save_close_button = Button(text='Add sensor', size=(100, 50), size_hint=[None, None])
+        save_close_button = Button(
+            text="Add sensor", size=(100, 50), size_hint=[None, None]
+        )
         boxlayout.add_widget(save_close_button)
 
-        popup = Popup(title='Add sensor',
-                      content=boxlayout,
-                      size_hint=(None, None), size=(400, 200))
+        popup = Popup(
+            title="Add sensor",
+            content=boxlayout,
+            size_hint=(None, None),
+            size=(400, 200),
+        )
 
         def __close_add_floor(instance):
             popup.dismiss()
@@ -451,7 +480,7 @@ class FloorSelector(GridLayout):
 
         button_number = len(self.buttons)
 
-        text = kwargs.get('text', None)
+        text = kwargs.get("text", None)
         if text is None:
             text = FloorSelector._DEFAULT_BUTTON_TEXT % button_number
 
@@ -461,7 +490,9 @@ class FloorSelector(GridLayout):
         def on_press(instance):
             self.schema_page.change_floor(button_number)
 
-        button = Button(text=text, size_hint=(1 / self.schema_page.MAX_FLOORS_AMOUNT, 1))
+        button = Button(
+            text=text, size_hint=(1 / self.schema_page.MAX_FLOORS_AMOUNT, 1)
+        )
         button.bind(on_press=on_press)
         button.background_color = FloorSelector._UNSELECTED_BUTTON_COLOR
 
