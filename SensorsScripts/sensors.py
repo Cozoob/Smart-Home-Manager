@@ -176,7 +176,7 @@ class Lock(Sensor):
 
 
 class GasDetector(Sensor):
-    is_gas_detected = True
+    is_gas_detected: bool = True
 
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         super().__init__(broker, port, sender_topic, client_id)
@@ -202,17 +202,26 @@ class GasDetector(Sensor):
         data = dict()
         self.is_gas_detected = bool(randint(1, 100) > 2)
         data["gas_detected"] = self.is_gas_detected
+        data["gas_density"] = 0
+        if self.is_gas_detected:
+            data["gas_density"] = randint(5, 20)  # [%]
+
         return data
 
 
 class Light(Sensor):
     is_turn_on = True
+    color_temperatures = ["COOLEST", "COOL", "NEUTRAL", "WARM", "WARMEST"]
+    color_temperature: str = "COOLEST"
+    brightness: int = 0
 
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         super().__init__(broker, port, sender_topic, client_id)
 
     def publish(self, data: dict):
         self.subscribe(self.client)
+        self.subscribe_temperature()
+        self.subscribe_brightness()
         self.client.loop_start()
         while True:
             random_data = self._get_random_data()
@@ -238,21 +247,33 @@ class Light(Sensor):
         client.subscribe(topic)
         client.on_message = on_message
 
+    def subscribe_brightness(self):
+        def on_message(client, userdata, msg):
+            m = msg.payload.decode("utf-8")
+            # print(f"Received `{m}` from `{msg.topic}` topic")
+            self.brightness = int(m)
+
+        topic = self.sender_topic + "/brightness_value"
+        self.client.subscribe(topic)
+        self.client.on_message = on_message
+
+    def subscribe_temperature(self):
+        def on_message(client, userdata, msg):
+            m = msg.payload.decode("utf-8")
+            # print(f"Received `{m}` from `{msg.topic}` topic")
+            self.color_temperature = m
+
+        topic = self.sender_topic + "/color_value"
+        self.client.subscribe(topic)
+        self.client.on_message = on_message
+
     def _get_random_data(self) -> dict:
         # brightness [%]
         # color_temperature in [coolest, cool, neutral, warm, warmest]
-        color_temperatures = ["coolest", "cool", "neutral", "warm", "warmest"]
 
         data = dict()
-        if self.is_turn_on:
-            brightness_value = randint(0, 100)
-            color_value = color_temperatures[randint(0, len(color_temperatures) - 1)]
-        else:
-            brightness_value = randint(0, 100)
-            color_value = "coolest"
-
-        data["brightness_value"] = brightness_value
-        data["color_value"] = color_value
+        data["brightness_value"] = self.brightness
+        data["color_value"] = self.color_temperature
         data["turn_on"] = self.is_turn_on
         return data
 

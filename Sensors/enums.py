@@ -11,7 +11,6 @@ class SensorType(Enum):
     HUMID = auto()
     ROLLER_SHADE = auto()
     GARAGE_DOOR = auto()
-    OTHER = auto()
 
 
 class ColorTemperature(Enum):
