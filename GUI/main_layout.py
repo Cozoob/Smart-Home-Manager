@@ -4,12 +4,12 @@ from GUI.Pages.SchemePage.scheme_page import SchemePage
 from GUI.Pages.settings_page import SettingsPage
 from GUI.Pages.home_page import HomePage
 
-class MainLayout(TabbedPanel):
 
+class MainLayout(TabbedPanel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.do_default_tab = False
-        self.tab_pos = 'top_mid'
+        self.tab_pos = "top_mid"
 
         self.home_item = TabbedPanelItem(text="HOME")
         self.home_page = HomePage()
@@ -23,9 +23,9 @@ class MainLayout(TabbedPanel):
         self.settings_page = SettingsPage(self)
         self.settings_item.add_widget(self.settings_page)
 
-        self.exit_item = TabbedPanelItem(text="EXIT",
-                                         background_color='red',
-                                         on_press=self.bye)
+        self.exit_item = TabbedPanelItem(
+            text="EXIT", background_color="red", on_press=self.bye
+        )
 
         self.add_widget(self.home_item)
         self.add_widget(self.scheme_item)

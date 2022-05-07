@@ -1,13 +1,11 @@
 
-# from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import NumericProperty, ObjectProperty, StringProperty
+from kivy.properties import StringProperty
 from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
-import urllib.request
 import json
-from time import gmtime, strftime
+from time import gmtime
 from kivy.network.urlrequest import UrlRequest
 
 
@@ -18,7 +16,6 @@ class WeatherBoxWidget(BoxLayout):
         self.orientation = 'vertical'
         self.weather_widget = WeatherWidget()
         self.add_widget(self.weather_widget)
-
 
     def load(self):
         self.weather_widget.load()
@@ -63,12 +60,10 @@ class WeatherWidget(RelativeLayout):
 
         self.download_current_weather(city=f"{city}")
 
-
     def download_current_weather(self, city, *args, **kwargs):
         url = 'http://api.openweathermap.org/data/2.5/weather?q=' + city + f'&APPID={self.API_key}'
         UrlRequest(url=url, on_success=self.show_current_weather, on_error=self.download_error, on_progress=self.progress,
                    chunk_size=40960)
-
 
     def download_error(self, request, error):
         """
@@ -77,14 +72,12 @@ class WeatherWidget(RelativeLayout):
         self.notification = 'data could not be downloaded' + error
         print(self.notification)
 
-
     def progress(self, request, current_size, total_size):
         """
         Shows progress to the user
         """
         self.notification = ('Downloading data: {} bytes of {} bytes'.format(current_size, total_size))
         print(self.notification)
-
 
     def show_current_weather(self, request, result):
 
