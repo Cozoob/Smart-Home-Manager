@@ -1,6 +1,8 @@
 # Created by Marcin "Cozoob" Kozub 05.05.2022
+import fnmatch
 import os
 import subprocess
+import sys
 import time
 
 import sensors
@@ -10,7 +12,7 @@ NAME = "sensor-"
 COUNTER = 0
 
 BROKER = "127.0.0.1"
-PORT = 1883
+PORT = 8080
 
 CHILDREN = []
 
@@ -39,6 +41,16 @@ def create_subprocess(class_name: str):
     COUNTER += 1
 
 
+def locate(pattern, root=os.curdir):
+    """
+    Locate dir matching supplied dirname pattern in and below
+    supplied root directory.
+    """
+    for path, dirs, files in os.walk(os.path.abspath(root)):
+        for dirname in fnmatch.filter(dirs, pattern):
+            return os.path.join(path, dirname)
+
+
 if __name__ == "__main__":
     # handling all signals
     for i in [x for x in dir(signal) if x.startswith("SIG")]:
@@ -51,21 +63,25 @@ if __name__ == "__main__":
 
     time.sleep(1)
 
-    file = os.getcwd() + r"\sensor.py"
+    file = os.path.join(os.getcwd(), "sensor.py")
     pythonpath = os.environ["PYTHONPATH"]
+
     os.chdir("..")
-    cwd = os.getcwd() + r"\venv\Lib\site-packages"
+    cwd = locate("site-packages")
+
     process_env = os.environ.copy()
     # example:
     # C:\Users\mnkoz\PycharmProjects\Smart-Home-Manager\venv\Lib\site-packages\paho
-    process_env["PYTHONPATH"] = cwd + ";" + process_env["PYTHONPATH"]
+    sys.path.append(cwd)
+
+    # print(process_env["PYTHONPATH"])
 
     # create_subprocess(sensors.GasValveSensor.__name__)
     # create_subprocess(sensors.SmartPlug.__name__)
     # create_subprocess(sensors.Lock.__name__)
     # create_subprocess(sensors.GasDetector.__name__)
-    # create_subprocess(sensors.Light.__name__)
-    create_subprocess(sensors.TemperatureSensor.__name__)
+    create_subprocess(sensors.Light.__name__)
+    # create_subprocess(sensors.TemperatureSensor.__name__)
     # create_subprocess(sensors.HumidSensor.__name__)
     # create_subprocess(sensors.RollerShade.__name__)
     # create_subprocess(sensors.GarageDoor.__name__)

@@ -9,6 +9,8 @@ from kivy.uix.layout import Layout
 from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 
+from Sensors.sensors import Sensor
+
 
 class SchemeObject(FloatLayout):
     """
@@ -43,19 +45,12 @@ class SchemeObject(FloatLayout):
 
 class SchemeSensor(SchemeObject):
 
-    # __DEFAULT_COLOR = [.2, .2, .2]
-    # __UNAVAILABLE_COLOR = [.5, .0, .0]
-    # # __UNAVAILABLE_COLOR = [.5, .0, .0]
-    #
-    # counter = NumericProperty(0)
-    # color = ListProperty(__DEFAULT_COLOR)
-
-    def __init__(self, sensor_name: str, **kwargs):
+    def __init__(self, sensor_name: str, sensor:Sensor, **kwargs):
         super().__init__(**kwargs)
         self.size = [50, 50]
         self.selected = False
-        # self.set_available_state()
         self.sensor_name = sensor_name
+        self.sensor = sensor
 
         self.sensor_icon: Widget = None
         self.label: Label = None

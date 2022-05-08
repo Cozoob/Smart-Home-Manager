@@ -10,28 +10,32 @@ import json
 
 
 class SettingsPage(RelativeLayout):
+    first_name = "NN"
+    last_name = "NN"
+    country = "NN"
+    region = "NN"
+    city = "NN"
+    API_key = "NN"
+    broker_ip = "127.0.0.1"
+    broker_port = 8080
+
+    inp_first_name = TextInput(text=f"{first_name}")
+    inp_last_name = TextInput(text=f"{last_name}")
+    inp_country = TextInput(text=f"{country}")
+    inp_region = TextInput(text=f"{region}")
+    inp_city = TextInput(text=f"{city}")
+    inp_api_key = TextInput(text=f"{API_key}", multiline=False)
+    inp_broker_ip = TextInput(text=f"{broker_ip}", multiline=False)
+    inp_broker_port = TextInput(text=f"{broker_port}", multiline=False)
+
     def __init__(self, main_layout, **kwargs):
         super().__init__(**kwargs)
         self.cols = 1
-        self.rows = 7
+        self.rows = 9
 
         self.data = []
 
         self.main_layout = main_layout
-
-        self.first_name = "NN"
-        self.last_name = "NN"
-        self.country = "NN"
-        self.region = "NN"
-        self.city = "NN"
-        self.API_key = "NN"
-
-        self.inp_first_name = TextInput(text=f"{self.first_name}")
-        self.inp_last_name = TextInput(text=f"{self.last_name}")
-        self.inp_country = TextInput(text=f"{self.country}")
-        self.inp_region = TextInput(text=f"{self.region}")
-        self.inp_city = TextInput(text=f"{self.city}")
-        self.inp_api_key = TextInput(text=f"{self.API_key}", multiline=False)
 
         self.create_layout()
 
@@ -48,6 +52,8 @@ class SettingsPage(RelativeLayout):
                 self.region = data["region"]
                 self.city = data["city"]
                 self.API_key = data["API_key"]
+                self.broker_ip = data["Broker_IP"]
+                self.broker_port = data["Broker_Port"]
 
                 self.inp_first_name = TextInput(text=f"{self.first_name}")
                 self.inp_last_name = TextInput(text=f"{self.last_name}")
@@ -55,6 +61,8 @@ class SettingsPage(RelativeLayout):
                 self.inp_region = TextInput(text=f"{self.region}")
                 self.inp_city = TextInput(text=f"{self.city}")
                 self.inp_api_key = TextInput(text=f"{self.API_key}", multiline=False)
+                self.inp_broker_ip = TextInput(text=f"{self.broker_ip}", multiline=False)
+                self.inp_broker_port = TextInput(text=f"{self.broker_port}", multiline=False)
 
         except FileNotFoundError:
             pass
@@ -164,6 +172,40 @@ class SettingsPage(RelativeLayout):
 
         self.add_widget(grid_api_key)
 
+        # BROKER IP
+        grid_broker_ip = GridLayout(
+            cols=2,
+            rows=1,
+            row_force_default=True,
+            row_default_height=40,
+            size_hint=(0.28, 0.125),
+            pos_hint={"top": 0.60, "x": 0.34},
+        )
+
+        lbl_broker_ip = Label(text="Broker IP")
+        grid_broker_ip.add_widget(lbl_broker_ip)
+
+        grid_broker_ip.add_widget(self.inp_broker_ip)
+
+        self.add_widget(grid_broker_ip)
+
+        # BROKER PORT
+        grid_broker_port = GridLayout(
+            cols=2,
+            rows=1,
+            row_force_default=True,
+            row_default_height=40,
+            size_hint=(0.28, 0.125),
+            pos_hint={"top": 0.55, "x": 0.34},
+        )
+
+        lbl_broker_port = Label(text="Broker port")
+        grid_broker_port.add_widget(lbl_broker_port)
+
+        grid_broker_port.add_widget(self.inp_broker_port)
+
+        self.add_widget(grid_broker_port)
+
         # Save button
         submit_button = Button(
             text="Save",
@@ -182,6 +224,8 @@ class SettingsPage(RelativeLayout):
         self.data["region"] = self.inp_region.text
         self.data["city"] = self.inp_city.text
         self.data["API_key"] = self.inp_api_key.text
+        self.data["Broker_IP"] = self.inp_broker_ip.text
+        self.data["Broker_Port"] = self.inp_broker_port.text
 
         try:
             with open("./Data/user.json", "w") as file:

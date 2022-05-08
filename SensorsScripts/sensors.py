@@ -1,3 +1,5 @@
+import uuid
+
 from paho.mqtt import client as mqtt_client
 from time import sleep
 from random import randint
@@ -22,7 +24,9 @@ class Sensor(ABC):
 
         client = mqtt_client.Client(client_id=self.client_id)
         client.on_connect = on_connect
-        client.connect(self.broker, self.port)
+        status = client.connect(self.broker, self.port)
+        print("main status: ", status)
+
         return client
 
     def _check_status(self, status: int):
@@ -215,8 +219,19 @@ class Light(Sensor):
     color_temperature: str = "COOLEST"
     brightness: int = 0
 
+    client_id2 = f"python-mqtt-{uuid.uuid1()}"
+    client_id3 = f"python-mqtt-{uuid.uuid1()}"
+
+
+
+
+
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         super().__init__(broker, port, sender_topic, client_id)
+        self.__connect_mqtt2()
+        # self.subscribe(self.client)
+
+
 
     def publish(self, data: dict):
         self.subscribe(self.client)
@@ -236,8 +251,9 @@ class Light(Sensor):
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
+            print(f"Received `{m}` from `{msg.topic}` topic")
 
+            # print(m, type(m))
             if m == "False":
                 self.is_turn_on = False
             else:
@@ -250,22 +266,27 @@ class Light(Sensor):
     def subscribe_brightness(self):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
-            self.brightness = int(m)
+            print(f"Received `{m}` from `{msg.topic}` topic")
+            try:
+                self.brightness = int(m)
+            except ValueError:
+                self.brightness = 0
 
         topic = self.sender_topic + "/brightness_value"
-        self.client.subscribe(topic)
-        self.client.on_message = on_message
+        self.client2.subscribe(topic)
+        self.client2.on_message = on_message
 
     def subscribe_temperature(self):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
+            print(f"Received `{m}` from `{msg.topic}` topic")
             self.color_temperature = m
 
         topic = self.sender_topic + "/color_value"
-        self.client.subscribe(topic)
-        self.client.on_message = on_message
+        self.client3.subscribe(topic)
+        self.client3.on_message = on_message
+
+        print("after temp sub")
 
     def _get_random_data(self) -> dict:
         # brightness [%]
@@ -276,6 +297,34 @@ class Light(Sensor):
         data["color_value"] = self.color_temperature
         data["turn_on"] = self.is_turn_on
         return data
+
+    def __connect_mqtt2(self):
+        def on_connect(client_id: mqtt_client, userdata, flags, rc: int):
+            print("on our custom connect")
+            if rc == 0:
+                print("Connected to MQTT Broker! " + client_id)
+            else:
+                print("Failed to connect, return code %d\n", rc)
+
+        self.client2 = mqtt_client.Client(client_id=self.client_id2)
+        self.client3 = mqtt_client.Client(client_id=self.client_id3)
+
+        print("client2: ", self.client2)
+        print("client3: ", self.client3)
+        sleep(5)
+        print("prev client2: ", self.client2.on_connect)
+        self.client2.on_connect = on_connect
+        print("post client2: ", self.client2.on_connect)
+        status = self.client2.connect(self.broker, self.port)
+        print("client2 status: ", status)
+
+        print("after clien2")
+
+
+        self.client3.on_connect = on_connect
+        sleep(5)
+        status = self.client3.connect(self.broker, self.port)
+        print("client3 status: ", status)
 
 
 class TemperatureSensor(Sensor):

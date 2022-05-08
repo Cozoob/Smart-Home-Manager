@@ -10,6 +10,7 @@ from GUI.Sensors.PopUpWindowUtils.popup_dropdown_field import DropdownField
 from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.PopUpWindowUtils.popup_readwrite_field import ReadWriteField, ReadWriteFieldInt
 from GUI.Sensors.scheme_object import SchemeSensor
+from Sensors.sensors import Light
 
 
 class SchemeLightSensor(SchemeSensor):
@@ -17,12 +18,11 @@ class SchemeLightSensor(SchemeSensor):
     # def set_available_state(self): ...
 
     MAIN_IMAGE = "./Resources/SensorIcons/light-bulb-icon.jpg"
-    SENSOR_NAME = "AduroSmartLight"
+    SENSOR_NAME = "SmartLight"
 
-    def __init__(self, **kwargs):
-        super(SchemeLightSensor, self).__init__(self.SENSOR_NAME, **kwargs)
-        # self.sensor = sensor
-
+    def __init__(self, sensor:Light, **kwargs):
+        super(SchemeLightSensor, self).__init__(self.SENSOR_NAME, sensor, **kwargs)
+        self.sensor = sensor
         super().set_background_image(self.MAIN_IMAGE)
 
     def get_popup_window_content(self) -> Tuple[Layout, Button]:
@@ -30,16 +30,12 @@ class SchemeLightSensor(SchemeSensor):
 
         # add header
         main_boxlayout.add_widget(Label(text=self.sensor_name))
+        main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
-        # add read only fields
-        main_boxlayout.add_widget(ReadOnlyField("status"))
-
-        # add input fields
-        main_boxlayout.add_widget(ReadWriteFieldInt("sth"))
-
-        main_boxlayout.add_widget(CycleField(["On", "Off"], [lambda x: ..., lambda x: ...]))
-
-        main_boxlayout.add_widget(DropdownField(["On", "Off"], [lambda x: ..., lambda x: ...]))
+        # turn on/off
+        turn_on_off = CycleField(["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off])
+        turn_on_off.update_value("On" if self.sensor.get_is_turn_on() else "Off")
+        main_boxlayout.add_widget(turn_on_off)
 
         # create close button and return result
         close_button = Button(text="Close")

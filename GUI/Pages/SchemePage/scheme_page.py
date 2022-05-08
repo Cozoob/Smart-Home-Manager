@@ -19,9 +19,11 @@ from os import listdir
 
 import json
 
-
+from GUI.Pages.settings_page import SettingsPage
 from GUI.Sensors.scheme_light_sensor import SchemeLightSensor
 from GUI.Sensors.scheme_object import SchemeObject
+from Sensors.enums import SensorType
+from Sensors.sensors import Light, Sensor
 
 
 class SchemePage(FloatLayout):
@@ -220,7 +222,7 @@ class SchemePage(FloatLayout):
         )
 
     def __popup_window_scheme(
-        self, label_text: str, button_text: str, title: str, fun_on_press
+            self, label_text: str, button_text: str, title: str, fun_on_press
     ):
         """
         :param fun_on_press: Must be a function with :param filename: str.
@@ -260,7 +262,7 @@ class FloorCanvas(RelativeLayout):
     image_names = [img for img in listdir("./Resources/Images/")]
 
     def __init__(
-        self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs
+            self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs
     ):
         super().__init__(**kwargs)
 
@@ -344,16 +346,46 @@ class FloorCanvas(RelativeLayout):
 
         return arr
 
-    def add_sensor(self):
-        # TODO EXTEND TO ALLOW TYPE SELECTION
-        sensor = SchemeLightSensor(pos=[30, 30])
-        self.add_widget(sensor)
-        self.objects.append(sensor)
+    def add_sensor(self, sensor_type:SensorType, sensor_topic:str):
+        if sensor_type == SensorType.LIGHT:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30])
+        elif sensor_type == SensorType.GAS_VALVE:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.SMART_PLUG:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.LOCKER:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.GAS_DETECTOR:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.TEMPERATURE:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.HUMID:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.ROLLER_SHADE:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        elif sensor_type == SensorType.GARAGE_DOOR:
+            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+        else:
+            return
+
+        self.add_widget(scheme_sensor)
+        self.objects.append(scheme_sensor)
 
     def remove_selected_object(self):
         if self.selected_object is None:
             return
 
+        if type(self.selected_object) == Sensor:
+            self.selected_object.disconnect()
         self.selected_object.unselect()
         self.remove_widget(self.selected_object)
         self.objects.remove(self.selected_object)
@@ -375,46 +407,37 @@ class FloorCanvas(RelativeLayout):
     def pop_up_window_add_sensor(self):
         boxlayout = BoxLayout(orientation="vertical")
         boxlayout.add_widget(
-            Label(text="Provide data", size=(370, 35), size_hint=[None, None])
+            Label(text="Provide data")
         )
-        # inp_area = TextInput(text='', size=(370, 35), size_hint=[None, None])
-        # boxlayout.add_widget(inp_area)
-        sensor_types = ["temperature", "light", "fire", "other"]
-        dropdown = DropDown()
-        for type in sensor_types:
-            lbl = Label(text=type)
-            dropdown.add_widget(lbl)
+        inp_area = TextInput(text='', multiline=False)
+        boxlayout.add_widget(inp_area)
 
-        def __on_select_list(instance):
-            print("eh")
+        selected_sensor_type = None
 
-        dropdown.bind(on_select=__on_select_list)
+        def show_dropdown(button, *args):
+            def fun_factory(sensor_type):
+                return lambda dropdown_button: on_select(dropdown_button, sensor_type)
 
-        # todo
-        def show_dropdown(button, *largs):
+            def on_select(dropdown_button, sensor_type: SensorType):
+                nonlocal selected_sensor_type, dp
+                dp.select(dropdown_button.text)
+                selected_sensor_type = sensor_type
+
             dp = DropDown()
             dp.bind(on_select=lambda instance, x: setattr(button, "text", x))
-            for i in range(10):
-                item = Button(text="hello %d" % i, size_hint_y=None, height=44)
-                item.bind(on_release=lambda btn: dp.select(btn.text))
+            for sensor_type in SensorType:
+                item = Button(text=sensor_type.name, size_hint_y=None, height=44)
+                item.bind(on_release=fun_factory(sensor_type))
                 dp.add_widget(item)
             dp.open(button)
 
-        btn = Button(text="SHOW", size_hint=(None, None), pos=(300, 200))
-        btn.bind(on_release=show_dropdown)
+        type_select_button = Button(text="Chose Type")
+        type_select_button.bind(on_release=show_dropdown)
 
-        boxlayout.add_widget(btn)
-        # todo
-
-        main_button = Button(text="Choose type")
-        # main_button.bind(on_release=dropdown.open)
-        main_button.bind(on_release=dropdown.open)
-        # dropdown.bind(on_select=lambda instance, x: setattr(main_button, 'text', x))
-
-        boxlayout.add_widget(main_button)
+        boxlayout.add_widget(type_select_button)
 
         save_close_button = Button(
-            text="Add sensor", size=(100, 50), size_hint=[None, None]
+            text="Add sensor"
         )
         boxlayout.add_widget(save_close_button)
 
@@ -422,16 +445,17 @@ class FloorCanvas(RelativeLayout):
             title="Add sensor",
             content=boxlayout,
             size_hint=(None, None),
-            size=(400, 200),
+            size=(400, 250),
         )
 
         def __close_add_floor(instance):
-            popup.dismiss()
-            self.add_sensor()
-            # todo
-            # filename = inp_area.text
+            sensor_topic = inp_area.text
+            if sensor_topic == "" or selected_sensor_type is None:
+                return
 
-            # fun_on_press(filename)
+            self.add_sensor(selected_sensor_type, sensor_topic)
+            popup.dismiss()
+            # todo
 
         save_close_button.bind(on_press=__close_add_floor)
         popup.open()

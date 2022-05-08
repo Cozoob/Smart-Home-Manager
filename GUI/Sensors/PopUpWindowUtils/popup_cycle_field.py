@@ -28,15 +28,20 @@ class CycleField(Field):
             self.curr_index += 1
             self.curr_index %= self.options_amount
 
-            self.set_index(self.curr_index)
+            self.change_index(self.curr_index)
 
         self.button.bind(on_press=next_option)
 
         self.set_index(self.curr_index)
 
+    def change_index(self, index:int):
+        self.button.text = self.options[index]
+        self.functions[index]()
+        self.curr_index = index
+
     def set_index(self, index:int):
         self.button.text = self.options[index]
-        self.functions[index](self.options[index])
+        self.curr_index = index
 
     def update_value(self, value):
         if not type(value) == str:

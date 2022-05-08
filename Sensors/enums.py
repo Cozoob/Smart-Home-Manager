@@ -13,6 +13,7 @@ class SensorType(Enum):
     GARAGE_DOOR = auto()
 
 
+
 class ColorTemperature(Enum):
     COOLEST = auto()
     COOL = auto()
