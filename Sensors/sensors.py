@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from connectors import MQTTConnector, SensorConnector
-from enums import SensorType, ColorTemperature
-from interfaces import Openable, Turnable
+from .connectors import MQTTConnector, SensorConnector
+from .enums import SensorType, ColorTemperature
+from .interfaces import Openable, Turnable
 
 
 class Sensor(ABC):

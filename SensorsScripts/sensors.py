@@ -25,7 +25,6 @@ class Sensor(ABC):
         client = mqtt_client.Client(client_id=self.client_id)
         client.on_connect = on_connect
         status = client.connect(self.broker, self.port)
-        print("main status: ", status)
 
         return client
 
@@ -229,7 +228,6 @@ class Light(Sensor):
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         super().__init__(broker, port, sender_topic, client_id)
         self.__connect_mqtt2()
-        # self.subscribe(self.client)
 
 
 
@@ -238,6 +236,9 @@ class Light(Sensor):
         self.subscribe_temperature()
         self.subscribe_brightness()
         self.client.loop_start()
+        self.client2.loop_start()
+        self.client3.loop_start()
+
         while True:
             random_data = self._get_random_data()
             for key in random_data:
@@ -253,7 +254,6 @@ class Light(Sensor):
             m = msg.payload.decode("utf-8")
             print(f"Received `{m}` from `{msg.topic}` topic")
 
-            # print(m, type(m))
             if m == "False":
                 self.is_turn_on = False
             else:
@@ -286,8 +286,6 @@ class Light(Sensor):
         self.client3.subscribe(topic)
         self.client3.on_message = on_message
 
-        print("after temp sub")
-
     def _get_random_data(self) -> dict:
         # brightness [%]
         # color_temperature in [coolest, cool, neutral, warm, warmest]
@@ -300,31 +298,19 @@ class Light(Sensor):
 
     def __connect_mqtt2(self):
         def on_connect(client_id: mqtt_client, userdata, flags, rc: int):
-            print("on our custom connect")
             if rc == 0:
-                print("Connected to MQTT Broker! " + client_id)
+                print("Connected to MQTT Broker! ")
             else:
                 print("Failed to connect, return code %d\n", rc)
 
         self.client2 = mqtt_client.Client(client_id=self.client_id2)
         self.client3 = mqtt_client.Client(client_id=self.client_id3)
 
-        print("client2: ", self.client2)
-        print("client3: ", self.client3)
-        sleep(5)
-        print("prev client2: ", self.client2.on_connect)
         self.client2.on_connect = on_connect
-        print("post client2: ", self.client2.on_connect)
-        status = self.client2.connect(self.broker, self.port)
-        print("client2 status: ", status)
-
-        print("after clien2")
-
+        self.client2.connect(self.broker, self.port)
 
         self.client3.on_connect = on_connect
-        sleep(5)
-        status = self.client3.connect(self.broker, self.port)
-        print("client3 status: ", status)
+        self.client3.connect(self.broker, self.port)
 
 
 class TemperatureSensor(Sensor):

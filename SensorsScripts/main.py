@@ -12,7 +12,7 @@ NAME = "sensor-"
 COUNTER = 0
 
 BROKER = "127.0.0.1"
-PORT = 8080
+PORT = 1883
 
 CHILDREN = []
 
@@ -68,13 +68,25 @@ if __name__ == "__main__":
 
     os.chdir("..")
     cwd = locate("site-packages")
+    # print(cwd)
 
     process_env = os.environ.copy()
+    print(process_env["PYTHONPATH"])
+    # process_env["PYTHONPATH"].join(cwd)
+
+    if pythonpath.find(";"):
+        # windows
+        process_env["PYTHONPATH"] = cwd + ";" + process_env["PYTHONPATH"]
+    else:
+        # linux
+        process_env["PYTHONPATH"] = cwd + ":" + process_env["PYTHONPATH"]
+
+
     # example:
     # C:\Users\mnkoz\PycharmProjects\Smart-Home-Manager\venv\Lib\site-packages\paho
     sys.path.append(cwd)
 
-    # print(process_env["PYTHONPATH"])
+    print(process_env["PYTHONPATH"])
 
     # create_subprocess(sensors.GasValveSensor.__name__)
     # create_subprocess(sensors.SmartPlug.__name__)

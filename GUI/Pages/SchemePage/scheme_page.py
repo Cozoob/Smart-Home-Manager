@@ -196,6 +196,8 @@ class SchemePage(FloatLayout):
                 # save this...
                 self.save_changes()
 
+
+
     def pop_floor(self):
         if len(self.floors) <= 1:
             return
@@ -347,6 +349,17 @@ class FloorCanvas(RelativeLayout):
         return arr
 
     def add_sensor(self, sensor_type:SensorType, sensor_topic:str):
+
+        try:
+            with open("./Data/user.json", "r") as file:
+                data = json.loads(file.read())
+                SettingsPage.broker_ip = data["Broker_IP"]
+                SettingsPage.broker_port = int(data["Broker_Port"])
+
+        except FileNotFoundError:
+            return
+
+
         if sensor_type == SensorType.LIGHT:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
             scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30])

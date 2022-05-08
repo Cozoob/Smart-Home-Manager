@@ -50,6 +50,8 @@ class MQTTConnector:
 
         client = mqtt_client.Client(client_id=self.client_id)
         client.on_connect = on_connect
+        print(self.broker)
+        print(self.port)
         client.connect(self.broker, self.port)
         return client
 
