@@ -26,7 +26,6 @@ class ReadWriteField(Field):
             if not self.validators.isValid(value):
                 print("Error")
                 self.turn_invalid_state()
-                # todo make indication
                 return False
 
             self.set_function(value)
@@ -64,10 +63,10 @@ class ReadWriteField(Field):
 
 class ReadWriteFieldInt(ReadWriteField):
 
-    def __init__(self, field_name:str, **kwargs):
-        super().__init__(field_name, **kwargs)
+    def __init__(self, field_name:str, set_function, min_val:int, max_val:int, **kwargs):
+        super().__init__(field_name, set_function, **kwargs)
 
-        self.validators.add_validator(ValidatorInt(0, 255))
+        self.validators.add_validator(ValidatorInt(min_val, max_val))
         self.string_to_type_converter = ReadWriteFieldInt.string_to_type_converter_fun
 
     @classmethod

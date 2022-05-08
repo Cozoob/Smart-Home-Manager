@@ -62,27 +62,31 @@ class MQTTConnector:
 class SensorConnector:
     subscribed_topics = dict()
 
-    def __init__(self, connector: MQTTConnector):
-        self.connector = connector
+    def __init__(self, broker: str, port: int, main_topic: str):
+        self.broker = broker
+        self.port = port
+        self.main_topic = main_topic
+        self.connectors = {"publisher" : MQTTConnector(broker, port, main_topic)}
 
     def send_data(self, topic: str, data: typing.Any):
-        self.connector.publish(topic, data)
+        self.connectors["publisher"].publish(topic, data)
 
     def get_data(self, topic: str) -> str:
-        if topic not in self.subscribed_topics.keys():
+        if topic not in self.subscribed_topics.keys() or topic not in self.connectors.keys():
             self.subscribed_topics[topic] = False
+            self.connectors[topic] = MQTTConnector(self.broker, self.port, self.main_topic)
             self.subscribe(topic)
         elif self.subscribed_topics[topic] is False:
             self.subscribe(topic)
 
-        return self.connector.data[topic]
+        return self.connectors[topic].data[topic]
 
     def subscribe(self, topic: str):
-        self.connector.subscribe(topic)
+        self.connectors[topic].subscribe(topic)
         self.subscribed_topics[topic] = True
 
     def unsubscribe(self, topic: str):
-        self.connector.unsubscribe(topic)
+        self.connectors[topic].unsubscribe(topic)
         self.subscribed_topics[topic] = False
 
     def unsubscribe_all(self):
@@ -90,3 +94,4 @@ class SensorConnector:
             if value:
                 print("Unsubscribed topic -> ", topic)
                 self.unsubscribe(topic)
+

@@ -10,7 +10,7 @@ class Sensor(ABC):
     sensor_type: SensorType
 
     def __init__(self, sensor_id: str, broker: str, port: int):
-        self.connector = SensorConnector(MQTTConnector(broker, port, sensor_id))
+        self.connector = SensorConnector(broker, port, sensor_id)
         self.sensor_id = sensor_id
         self.sensor_type = self.get_sensor_type()
 
@@ -26,6 +26,7 @@ class Sensor(ABC):
         self.connector = connector
 
     def disconnect(self):
+        print("in fun disconnect")
         self.connector.unsubscribe_all()
 
 
@@ -53,7 +54,7 @@ class GasDetector(Sensor):
         return int(self.connector.get_data("gas_density"))
 
     def get_is_gas_detected(self) -> bool:
-        self.is_gas_detected = bool(self.connector.get_data("gas_detected"))
+        self.is_gas_detected = self.connector.get_data("gas_detected") == "True"
         return self.is_gas_detected
 
 
@@ -87,7 +88,7 @@ class RollerShade(Sensor, Openable):
         self.connector.send_data("open", False)
 
     def get_is_open(self):
-        self.is_open = bool(self.connector.get_data("open"))
+        self.is_open = self.connector.get_data("open") == "True"
         return self.is_open
 
     def get_open_value(self):
@@ -117,7 +118,7 @@ class GasValve(Sensor, Openable):
         self.connector.send_data("open", False)
 
     def get_is_open(self) -> bool:
-        self.is_open = bool(self.connector.get_data("open"))
+        self.is_open = self.connector.get_data("open") == "True"
         return self.is_open
 
     def check_gas_value(self) -> int:
@@ -142,7 +143,7 @@ class Locker(Sensor, Openable):
         self.connector.send_data("open", False)
 
     def get_is_open(self) -> bool:
-        self.is_open = bool(self.connector.get_data("open"))
+        self.is_open = self.connector.get_data("open") == "True"
         return self.is_open
 
 
@@ -164,7 +165,7 @@ class GarageDoor(Sensor, Openable):
         self.connector.send_data("open", False)
 
     def get_is_open(self) -> bool:
-        self.is_open = bool(self.connector.get_data("open"))
+        self.is_open = self.connector.get_data("open") == "True"
         return self.is_open
 
 
@@ -188,7 +189,7 @@ class Light(Sensor, Turnable):
         self.is_turn_on = False
 
     def get_is_turn_on(self) -> bool:
-        self.is_turn_on = bool(self.connector.get_data("turn_on"))
+        self.is_turn_on = self.connector.get_data("turn_on") == "True"
         return self.is_turn_on
 
     def get_color_temperature(self) -> ColorTemperature:
@@ -196,7 +197,7 @@ class Light(Sensor, Turnable):
 
     def set_color_temperature(self, new_color_temperature: ColorTemperature):
         self.color_temperature = new_color_temperature
-        self.connector.send_data("color_value", str(self.color_temperature.value))
+        self.connector.send_data("color_value", str(self.color_temperature.name))
 
     def get_brightness(self) -> int:
         self.brightness = int(self.connector.get_data("brightness_value"))
@@ -226,7 +227,7 @@ class SmartPlug(Sensor, Turnable):
         self.is_turn_on = False
 
     def get_is_turn_on(self) -> bool:
-        self.is_turn_on = bool(self.connector.get_data("turn_on"))
+        self.is_turn_on = self.connector.get_data("turn_on") == "True"
         return self.is_turn_on
 
     def get_power_value(self) -> int:

@@ -12,7 +12,7 @@ NAME = "sensor-"
 COUNTER = 0
 
 BROKER = "127.0.0.1"
-PORT = 1883
+PORT = 8080
 
 CHILDREN = []
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     print(process_env["PYTHONPATH"])
     # process_env["PYTHONPATH"].join(cwd)
 
-    if pythonpath.find(";"):
+    if pythonpath.find(";") != -1:
         # windows
         process_env["PYTHONPATH"] = cwd + ";" + process_env["PYTHONPATH"]
     else:

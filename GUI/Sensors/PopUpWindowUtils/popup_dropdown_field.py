@@ -23,12 +23,15 @@ class DropdownField(Field):
         self.options_amount = len(options)
 
         def show_dropdown(button, *args):
+            def fun_factory(idx):
+                return lambda _: self.change_index(idx)
+
             dp = DropDown()
             dp.bind(on_select=lambda instance, x: setattr(button, "text", x))
             for i in range(self.options_amount):
                 item = Button(text=self.options[i], size_hint_y=None, height=44)
                 item.bind(on_release=lambda btn: dp.select(btn.text))
-                item.bind(on_release=lambda _: self.set_index(i))
+                item.bind(on_release=fun_factory(i))
                 dp.add_widget(item)
             dp.open(button)
 
@@ -38,9 +41,14 @@ class DropdownField(Field):
         self.add_widget(self.button)
         self.set_index(self.curr_index)
 
-    def set_index(self, index:int):
+    def change_index(self, index: int):
         self.button.text = self.options[index]
-        self.functions[index](self.options[index])
+        self.functions[index]()
+        self.curr_index = index
+
+    def set_index(self, index: int):
+        self.button.text = self.options[index]
+        self.curr_index = index
 
     def update_value(self, value):
         if not type(value) == str:

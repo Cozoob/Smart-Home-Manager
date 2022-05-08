@@ -196,8 +196,6 @@ class SchemePage(FloatLayout):
                 # save this...
                 self.save_changes()
 
-
-
     def pop_floor(self):
         if len(self.floors) <= 1:
             return
@@ -359,7 +357,6 @@ class FloorCanvas(RelativeLayout):
         except FileNotFoundError:
             return
 
-
         if sensor_type == SensorType.LIGHT:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
             scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30])
@@ -397,8 +394,7 @@ class FloorCanvas(RelativeLayout):
         if self.selected_object is None:
             return
 
-        if type(self.selected_object) == Sensor:
-            self.selected_object.disconnect()
+        self.selected_object.sensor.disconnect()
         self.selected_object.unselect()
         self.remove_widget(self.selected_object)
         self.objects.remove(self.selected_object)
