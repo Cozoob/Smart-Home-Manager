@@ -154,9 +154,8 @@ class SchemePage(FloatLayout):
 
             data[idx]["floor"]["image"] = image_name
 
-            if not len(sensors_data):
-                # save sensors info
-                pass
+            for sensor in sensors_data:
+                data[idx]["sensors"].append(sensor)
 
         print(data)
 
@@ -185,16 +184,26 @@ class SchemePage(FloatLayout):
             except JSONDecodeError:
                 data = []
 
-            for floor_data in data:
-                filename = floor_data["floor"]["image"]
-                self.add_floor_press_ok(filename)
-
             if len(data) == 0:
-                for _ in range(2):
+                for _ in range(1):
                     self.add_floor()
 
                 # save this...
                 self.save_changes()
+                return
+
+            floors_amount = len(data)
+            for i, floor_data in enumerate(data):
+                filename = floor_data["floor"]["image"]
+                self.add_floor_press_ok(filename)
+
+                curr_floor = self.floors[i]
+                sensors = floor_data["sensors"]
+
+                for sensor in sensors:
+                    print(sensor)
+                    curr_floor.add_sensor(SensorType[sensor.get('type')], sensor.get('topic'),
+                                          size=[sensor.get('width'), sensor.get('width')], pos=[sensor.get('x'), sensor.get('y')])
 
     def pop_floor(self):
         if len(self.floors) <= 1:
@@ -336,17 +345,15 @@ class FloorCanvas(RelativeLayout):
         pass
 
     def save_floor_data(self) -> list:
-        arr = []
-
         # the first position is always image filename
-        arr.append(self.image_name)
+        arr = [self.image_name]
 
         for obj in self.objects:
             arr.append(obj.get_data())
 
         return arr
 
-    def add_sensor(self, sensor_type:SensorType, sensor_topic:str):
+    def add_sensor(self, sensor_type:SensorType, sensor_topic:str, **kwargs):
 
         try:
             with open("./Data/user.json", "r") as file:
@@ -357,33 +364,36 @@ class FloorCanvas(RelativeLayout):
         except FileNotFoundError:
             return
 
+        if 'pos' not in kwargs:
+            kwargs['pos'] = [30,30]
+
         if sensor_type == SensorType.LIGHT:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30])
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs)
         elif sensor_type == SensorType.GAS_VALVE:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.SMART_PLUG:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.LOCKER:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.GAS_DETECTOR:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.TEMPERATURE:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.HUMID:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.ROLLER_SHADE:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         elif sensor_type == SensorType.GARAGE_DOOR:
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, pos=[30, 30]) #todo
+            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
         else:
             return
 

@@ -124,8 +124,8 @@ class SchemeSensor(SchemeObject):
             "y": self.pos[1],
             "width": self.size[0],
             "height": self.size[1],
-            "type": self.sensor.type,
-            "topic": self.sensor.topic,
+            "type": self.sensor.get_sensor_type().name,
+            "topic": self.sensor.get_sensor_id(),
         }
 
     def select(self):
