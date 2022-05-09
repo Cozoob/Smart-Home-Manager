@@ -20,10 +20,19 @@ from os import listdir
 import json
 
 from GUI.Pages.settings_page import SettingsPage
+from GUI.Sensors.scheme_garage_door import SchemeGarageDoor
+from GUI.Sensors.scheme_gas_detector import SchemeGasDetector
+from GUI.Sensors.scheme_gas_valve_sensor import SchemeGasValveSensor
+from GUI.Sensors.scheme_humid_sensor import SchemeHumidSensor
 from GUI.Sensors.scheme_light_sensor import SchemeLightSensor
+from GUI.Sensors.scheme_lock_sensor import SchemeLock
 from GUI.Sensors.scheme_object import SchemeObject
+from GUI.Sensors.scheme_roller_shade import SchemeRollerShade
+from GUI.Sensors.scheme_smart_plug import SchemeSmartPlug
+from GUI.Sensors.scheme_temperature import SchemeTemperature
 from Sensors.enums import SensorType
-from Sensors.sensors import Light, Sensor
+from Sensors.sensors import Light, Sensor, GasValve, SmartPlug, Locker, GasDetector, TemperatureSensor, HumidSensor, \
+    RollerShade, GarageDoor
 
 
 class SchemePage(FloatLayout):
@@ -314,8 +323,6 @@ class FloorCanvas(RelativeLayout):
                     break
 
         else:
-            # print(self.objects) # TODO DELETE
-            # unselect all objects
             self.selected_object = None
             for obj in self.objects:
                 obj.unselect()
@@ -371,29 +378,29 @@ class FloorCanvas(RelativeLayout):
             sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
             scheme_sensor = SchemeLightSensor(sensor, **kwargs)
         elif sensor_type == SensorType.GAS_VALVE:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = GasValve(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeGasValveSensor(sensor, **kwargs)
         elif sensor_type == SensorType.SMART_PLUG:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = SmartPlug(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeSmartPlug(sensor, **kwargs)
         elif sensor_type == SensorType.LOCKER:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = Locker(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeLock(sensor, **kwargs)
         elif sensor_type == SensorType.GAS_DETECTOR:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = GasDetector(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeGasDetector(sensor, **kwargs)
         elif sensor_type == SensorType.TEMPERATURE:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = TemperatureSensor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeTemperature(sensor, **kwargs)
         elif sensor_type == SensorType.HUMID:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = HumidSensor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeHumidSensor(sensor, **kwargs)
         elif sensor_type == SensorType.ROLLER_SHADE:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = RollerShade(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeRollerShade(sensor, **kwargs)
         elif sensor_type == SensorType.GARAGE_DOOR:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
-            scheme_sensor = SchemeLightSensor(sensor, **kwargs) #todo
+            sensor = GarageDoor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            scheme_sensor = SchemeGarageDoor(sensor, **kwargs)
         else:
             return
 

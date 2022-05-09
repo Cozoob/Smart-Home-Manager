@@ -16,8 +16,6 @@ from Sensors.sensors import Light
 
 
 class SchemeLightSensor(SchemeSensor):
-    # def set_unavailable_state(self): ...
-    # def set_available_state(self): ...
 
     MAIN_IMAGE = "./Resources/SensorIcons/light-bulb-icon.jpg"
     SENSOR_NAME = "SmartLight"
@@ -94,6 +92,3 @@ class SchemeLightSensor(SchemeSensor):
 
         return main_boxlayout, close_button
 
-
-class SchemeLightSensorObserver:
-    pass
