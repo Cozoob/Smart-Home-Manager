@@ -307,34 +307,19 @@ class FloorCanvas(RelativeLayout):
         self.rect.size = self.size
 
     def on_touch_down(self, touch):
-        if self.schema_page.is_in_edit_mode():
+        self.selected_object = None
+        for obj in self.objects:
+            obj.unselect()
 
-            # unselect all objects
-            self.selected_object = None
-            for obj in self.objects:
-                obj.unselect()
+        # find and select one that collides
+        for obj in self.objects[::-1]:
+            if obj.collide_point(*touch.pos):
+                self.selected_object = obj
+                obj.select()
 
-            # find and select one that collides
-            for obj in self.objects[::-1]:
-                if obj.collide_point(*touch.pos):
-                    self.selected_object = obj
-                    obj.select()
+                break
 
-                    break
-
-        else:
-            self.selected_object = None
-            for obj in self.objects:
-                obj.unselect()
-
-            # find and select one that collides
-            for obj in self.objects[::-1]:
-                if obj.collide_point(*touch.pos):
-                    self.selected_object = obj
-                    obj.select()
-
-                    break
-
+        if not self.schema_page.is_in_edit_mode():
             if self.selected_object:
                 self.selected_object.show_popup_window()
 
