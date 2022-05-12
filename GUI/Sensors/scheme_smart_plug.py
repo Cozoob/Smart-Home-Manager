@@ -6,6 +6,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
+from GUI.Sensors.PopUpWindowUtils.popup_cycle_field import CycleField
+from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.sensors import  SmartPlug
 
@@ -26,7 +28,9 @@ class SchemeSmartPlug(SchemeSensor):
         main_boxlayout = BoxLayout(orientation="vertical")
 
         def update(*args):
-            # nonlocal
+            nonlocal power_value, turn_state
+            power_value.update_value(self.sensor.get_power_value())
+            turn_state.update_value("ON" if self.sensor.get_is_turn_on() else "OFF")
             pass
 
         # add header
@@ -34,6 +38,15 @@ class SchemeSmartPlug(SchemeSensor):
         main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
         # todo
+        power_value = ReadOnlyField("Power Value:")
+        main_boxlayout.add_widget(power_value)
+
+        turn_state = ReadOnlyField("State:")
+        main_boxlayout.add_widget(turn_state)
+
+        turn_on_off = CycleField(["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off])
+        turn_on_off.update_value("On" if self.sensor.get_is_turn_on() else "Off")
+        main_boxlayout.add_widget(turn_on_off)
 
         # clock update
         clock = Clock.schedule_interval(update, self.REFRESH_RATE_SECONDS)

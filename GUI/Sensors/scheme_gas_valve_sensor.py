@@ -6,6 +6,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
+from GUI.Sensors.PopUpWindowUtils.popup_cycle_field import CycleField
+from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.sensors import GasValve
 
@@ -26,7 +28,9 @@ class SchemeGasValveSensor(SchemeSensor):
         main_boxlayout = BoxLayout(orientation="vertical")
 
         def update(*args):
-            # nonlocal
+            nonlocal gas_value, open_state
+            open_state.update_value("Open" if self.sensor.get_is_open() else "Close")
+            gas_value.update_value(self.sensor.check_gas_value())
             pass
 
         # add header
@@ -34,6 +38,15 @@ class SchemeGasValveSensor(SchemeSensor):
         main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
         # todo
+        gas_value = ReadOnlyField("Gas Value:")
+        main_boxlayout.add_widget(gas_value)
+
+        open_state = ReadOnlyField("State:")
+        main_boxlayout.add_widget(open_state)
+
+        open_close = CycleField(["Open", "Close"], [self.sensor.open, self.sensor.close])
+        open_close.update_value("Open" if self.sensor.get_is_open() else "Close")
+        main_boxlayout.add_widget(open_close)
 
         # clock update
         clock = Clock.schedule_interval(update, self.REFRESH_RATE_SECONDS)

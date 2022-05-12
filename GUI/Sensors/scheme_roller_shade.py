@@ -6,6 +6,9 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
+from GUI.Sensors.PopUpWindowUtils.popup_cycle_field import CycleField
+from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
+from GUI.Sensors.PopUpWindowUtils.popup_readwrite_field import ReadWriteFieldInt
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.sensors import RollerShade
 
@@ -26,7 +29,9 @@ class SchemeRollerShade(SchemeSensor):
         main_boxlayout = BoxLayout(orientation="vertical")
 
         def update(*args):
-            # nonlocal
+            nonlocal open_state, open_value
+            open_state.update_value("Open" if self.sensor.get_is_open() else "Close")
+            open_value.update_value(self.sensor.get_open_value())
             pass
 
         # add header
@@ -34,6 +39,19 @@ class SchemeRollerShade(SchemeSensor):
         main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
         # todo
+        open_state = ReadOnlyField("State:")
+        main_boxlayout.add_widget(open_state)
+
+        open_value = ReadOnlyField("Open Value:")
+        main_boxlayout.add_widget(open_value)
+
+        turn_on_off = CycleField(["Open", "Close"], [self.sensor.open, self.sensor.close])
+        turn_on_off.update_value("Open" if self.sensor.get_is_open() else "Close")
+        main_boxlayout.add_widget(turn_on_off)
+
+        set_open_value = ReadWriteFieldInt("Open Value (0-100)", self.sensor.set_open_value, 0, 100)
+        set_open_value.update_value(self.sensor.get_open_value())
+        main_boxlayout.add_widget(set_open_value)
 
         # clock update
         clock = Clock.schedule_interval(update, self.REFRESH_RATE_SECONDS)

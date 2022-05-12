@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
+from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.sensors import HumidSensor
 
@@ -26,7 +27,8 @@ class SchemeHumidSensor(SchemeSensor):
         main_boxlayout = BoxLayout(orientation="vertical")
 
         def update(*args):
-            # nonlocal
+            nonlocal humid_value
+            humid_value.update_value(self.sensor.get_humid())
             pass
 
         # add header
@@ -34,6 +36,8 @@ class SchemeHumidSensor(SchemeSensor):
         main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
         # todo
+        humid_value = ReadOnlyField("Humid: ")
+        main_boxlayout.add_widget(humid_value)
 
         # clock update
         clock = Clock.schedule_interval(update, self.REFRESH_RATE_SECONDS)

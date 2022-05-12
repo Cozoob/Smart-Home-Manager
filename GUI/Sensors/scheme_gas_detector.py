@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.layout import Layout
 
+from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.sensors import GasDetector
 
@@ -26,7 +27,9 @@ class SchemeGasDetector(SchemeSensor):
         main_boxlayout = BoxLayout(orientation="vertical")
 
         def update(*args):
-            # nonlocal
+            nonlocal gas_density, gas_detected
+            gas_density.update_value(self.sensor.check_gas_density())
+            gas_detected.update_value(self.sensor.get_is_gas_detected())
             pass
 
         # add header
@@ -34,6 +37,11 @@ class SchemeGasDetector(SchemeSensor):
         main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
 
         # todo
+        gas_density = ReadOnlyField("Gas Density: ")
+        main_boxlayout.add_widget(gas_density)
+
+        gas_detected = ReadOnlyField("Gas Detected: ")
+        main_boxlayout.add_widget(gas_detected)
 
         # clock update
         clock = Clock.schedule_interval(update, self.REFRESH_RATE_SECONDS)

@@ -6,6 +6,7 @@ from random import randint
 
 from abc import ABC, abstractmethod
 
+SLEEP_TIME = 0.5
 
 class Sensor(ABC):
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
@@ -62,7 +63,7 @@ class GasValveSensor(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
@@ -109,7 +110,7 @@ class SmartPlug(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
@@ -156,7 +157,7 @@ class Lock(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
@@ -195,7 +196,7 @@ class GasDetector(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         # Cannot modify state of gas detection
@@ -247,7 +248,7 @@ class Light(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
@@ -328,7 +329,7 @@ class TemperatureSensor(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         # Cannot change state of temperature
@@ -357,7 +358,7 @@ class HumidSensor(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         # Cannot change state of humidity
@@ -393,7 +394,7 @@ class RollerShade(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
@@ -436,7 +437,7 @@ class GarageDoor(Sensor):
                 )
                 status = result[0]
                 self._check_status(status)
-            sleep(5)
+            sleep(SLEEP_TIME)
 
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
