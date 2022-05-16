@@ -49,7 +49,12 @@ class MQTTConnector:
 
         client = mqtt_client.Client(client_id=self.client_id)
         client.on_connect = on_connect
-        client.connect(self.broker, self.port)
+
+        try:
+            client.connect(self.broker, self.port)
+        except ConnectionRefusedError:
+            print("Client was not able to connect to broker")
+
         return client
 
     def __get_actual_topic(self, topic: str):

@@ -1,4 +1,4 @@
-from SensorsScripts import sensors
+import sensors
 import argparse
 
 
