@@ -2,11 +2,25 @@
 
 ## Description
 
-[GIF]
-
 The program is a control panel for sensors in Smart Home. The sensors are connected with the program through MQTT Broker.
 
 The project contains also sensors' sciripts written in Python.
+
+**Sensor scripts working**
+
+![Gif presents sensor scripts working.](https://user-images.githubusercontent.com/90906410/168673712-418dbd5a-d8a4-4b49-97b3-3557aea0b10f.gif)
+
+**Preview control panel**
+
+![Gif presents control panel working.](https://user-images.githubusercontent.com/90906410/168682473-c8d0670f-88f0-496b-a4c8-1143a3dcff19.gif)
+  
+**Interaction with sensors**
+
+![Gif presents interaction with sensors.](https://user-images.githubusercontent.com/90906410/168682572-7bee90e8-a293-411a-80aa-bf45438b6525.gif)
+
+**Adding new floor and a sensor - editing scheme**
+
+![Gif presents editing scheme.](https://user-images.githubusercontent.com/90906410/168682658-a05f1ab6-7c6c-4f1c-b3e6-b3edd15a02f8.gif)
   
 ## Libraries
 - Kivy
@@ -43,7 +57,7 @@ The project contains also sensors' sciripts written in Python.
 
 8. Run makefile.
 
-`make`
+`make run`
 
 ## Authors
 - *Marcin "Cozoob" Kozub*
