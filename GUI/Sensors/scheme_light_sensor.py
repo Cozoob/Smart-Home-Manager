@@ -9,7 +9,7 @@ from kivy.uix.layout import Layout
 from GUI.Sensors.PopUpWindowUtils.popup_cycle_field import CycleField
 from GUI.Sensors.PopUpWindowUtils.popup_dropdown_field import DropdownField
 from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
-from GUI.Sensors.PopUpWindowUtils.popup_readwrite_field import ReadWriteField, ReadWriteFieldInt
+from GUI.Sensors.PopUpWindowUtils.popup_readwrite_field import ReadWriteFieldInt
 from GUI.Sensors.scheme_object import SchemeSensor
 from Sensors.enums import ColorTemperature
 from Sensors.sensors import Light
@@ -21,7 +21,7 @@ class SchemeLightSensor(SchemeSensor):
     SENSOR_NAME = "SmartLight"
     REFRESH_RATE_SECONDS = 1
 
-    def __init__(self, sensor:Light, **kwargs):
+    def __init__(self, sensor: Light, **kwargs):
         super(SchemeLightSensor, self).__init__(self.SENSOR_NAME, sensor, **kwargs)
         self.sensor = sensor
         super().set_background_image(self.MAIN_IMAGE)
@@ -37,13 +37,17 @@ class SchemeLightSensor(SchemeSensor):
 
         # add header
         main_boxlayout.add_widget(Label(text=self.sensor_name))
-        main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
+        main_boxlayout.add_widget(
+            Label(text="SensorID: " + self.sensor.get_sensor_id())
+        )
 
         # turn on/off
         turn_state = ReadOnlyField("State:")
         main_boxlayout.add_widget(turn_state)
 
-        turn_on_off = CycleField(["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off])
+        turn_on_off = CycleField(
+            ["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off]
+        )
         turn_on_off.update_value("On" if self.sensor.get_is_turn_on() else "Off")
         main_boxlayout.add_widget(turn_on_off)
 
@@ -51,7 +55,9 @@ class SchemeLightSensor(SchemeSensor):
         brightness_state = ReadOnlyField("Brightness:")
         main_boxlayout.add_widget(brightness_state)
 
-        brightness = ReadWriteFieldInt("Brightness(0-100):", self.sensor.set_brightness, 0, 100)
+        brightness = ReadWriteFieldInt(
+            "Brightness(0-100):", self.sensor.set_brightness, 0, 100
+        )
         brightness.update_value(self.sensor.get_brightness())
         main_boxlayout.add_widget(brightness)
 
@@ -59,12 +65,12 @@ class SchemeLightSensor(SchemeSensor):
         color_state = ReadOnlyField("Color temperature:")
         main_boxlayout.add_widget(color_state)
 
-        def fun_factory(clr:ColorTemperature):
-            return lambda : self.sensor.set_color_temperature(clr)
+        def fun_factory(clr: ColorTemperature):
+            return lambda: self.sensor.set_color_temperature(clr)
 
         color = DropdownField(
             [clr.name for clr in ColorTemperature],
-            [fun_factory(clr) for clr in ColorTemperature]
+            [fun_factory(clr) for clr in ColorTemperature],
         )
 
         color.update_value(self.sensor.get_color_temperature().name)
@@ -80,15 +86,12 @@ class SchemeLightSensor(SchemeSensor):
         main_boxlayout.add_widget(close_button)
 
         # calculate and set layout size
-        children_sizes = [ child.size for child in main_boxlayout.children ]
-        main_size = [0,0]
+        children_sizes = [child.size for child in main_boxlayout.children]
+        main_size = [0, 0]
         for child_size in children_sizes:
             main_size[0] = max(main_size[0], child_size[0])
             main_size[1] += child_size[1]
 
         main_boxlayout.size = main_size
-        print(main_boxlayout.size)
-        print(children_sizes)
 
         return main_boxlayout, close_button
-

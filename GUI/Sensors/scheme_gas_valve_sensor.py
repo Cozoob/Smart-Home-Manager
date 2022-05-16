@@ -18,7 +18,7 @@ class SchemeGasValveSensor(SchemeSensor):
     SENSOR_NAME = "GasValve"
     REFRESH_RATE_SECONDS = 1
 
-    def __init__(self, sensor:GasValve, **kwargs):
+    def __init__(self, sensor: GasValve, **kwargs):
         super(SchemeGasValveSensor, self).__init__(self.SENSOR_NAME, sensor, **kwargs)
         self.sensor = sensor
 
@@ -35,7 +35,9 @@ class SchemeGasValveSensor(SchemeSensor):
 
         # add header
         main_boxlayout.add_widget(Label(text=self.sensor_name))
-        main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
+        main_boxlayout.add_widget(
+            Label(text="SensorID: " + self.sensor.get_sensor_id())
+        )
 
         # todo
         gas_value = ReadOnlyField("Gas Value:")
@@ -44,7 +46,9 @@ class SchemeGasValveSensor(SchemeSensor):
         open_state = ReadOnlyField("State:")
         main_boxlayout.add_widget(open_state)
 
-        open_close = CycleField(["Open", "Close"], [self.sensor.open, self.sensor.close])
+        open_close = CycleField(
+            ["Open", "Close"], [self.sensor.open, self.sensor.close]
+        )
         open_close.update_value("Open" if self.sensor.get_is_open() else "Close")
         main_boxlayout.add_widget(open_close)
 
@@ -58,15 +62,12 @@ class SchemeGasValveSensor(SchemeSensor):
         main_boxlayout.add_widget(close_button)
 
         # calculate and set layout size
-        children_sizes = [ child.size for child in main_boxlayout.children ]
-        main_size = [0,0]
+        children_sizes = [child.size for child in main_boxlayout.children]
+        main_size = [0, 0]
         for child_size in children_sizes:
             main_size[0] = max(main_size[0], child_size[0])
             main_size[1] += child_size[1]
 
         main_boxlayout.size = main_size
-        print(main_boxlayout.size)
-        print(children_sizes)
 
         return main_boxlayout, close_button
-

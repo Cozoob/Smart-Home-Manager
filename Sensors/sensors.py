@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .connectors import MQTTConnector, SensorConnector
+from .connectors import SensorConnector
 from .enums import SensorType, ColorTemperature
 from .interfaces import Openable, Turnable
 
@@ -26,7 +26,6 @@ class Sensor(ABC):
         self.connector = connector
 
     def disconnect(self):
-        print("in fun disconnect")
         self.connector.unsubscribe_all()
 
 

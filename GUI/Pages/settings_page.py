@@ -61,8 +61,12 @@ class SettingsPage(RelativeLayout):
                 self.inp_region = TextInput(text=f"{self.region}")
                 self.inp_city = TextInput(text=f"{self.city}")
                 self.inp_api_key = TextInput(text=f"{self.API_key}", multiline=False)
-                self.inp_broker_ip = TextInput(text=f"{self.broker_ip}", multiline=False)
-                self.inp_broker_port = TextInput(text=f"{self.broker_port}", multiline=False)
+                self.inp_broker_ip = TextInput(
+                    text=f"{self.broker_ip}", multiline=False
+                )
+                self.inp_broker_port = TextInput(
+                    text=f"{self.broker_port}", multiline=False
+                )
 
         except FileNotFoundError:
             pass

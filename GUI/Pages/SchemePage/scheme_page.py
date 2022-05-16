@@ -31,8 +31,17 @@ from GUI.Sensors.scheme_roller_shade import SchemeRollerShade
 from GUI.Sensors.scheme_smart_plug import SchemeSmartPlug
 from GUI.Sensors.scheme_temperature import SchemeTemperature
 from Sensors.enums import SensorType
-from Sensors.sensors import Light, Sensor, GasValve, SmartPlug, Locker, GasDetector, TemperatureSensor, HumidSensor, \
-    RollerShade, GarageDoor
+from Sensors.sensors import (
+    Light,
+    GasValve,
+    SmartPlug,
+    Locker,
+    GasDetector,
+    TemperatureSensor,
+    HumidSensor,
+    RollerShade,
+    GarageDoor,
+)
 
 
 class SchemePage(FloatLayout):
@@ -166,24 +175,11 @@ class SchemePage(FloatLayout):
             for sensor in sensors_data:
                 data[idx]["sensors"].append(sensor)
 
-        print(data)
-
         try:
             with open("./Data/scheme.json", "w") as file:
                 json.dump(data, file)
         except FileNotFoundError:
             print("Cannot save changes.")
-
-        # todo
-        # values = []
-        # for floor in self.floors:
-        #     values.append(floor.saved_floor_data())
-        #
-        # try:
-        #     with open("./Data/tmp.json", "w") as file:
-        #         json.dump(values, file)
-        # except FileNotFoundError:
-        #     print("Cannot save changes.")
 
     def load_data(self):
         print("Loading scheme data in scheme page.")
@@ -201,7 +197,6 @@ class SchemePage(FloatLayout):
                 self.save_changes()
                 return
 
-            floors_amount = len(data)
             for i, floor_data in enumerate(data):
                 filename = floor_data["floor"]["image"]
                 self.add_floor_press_ok(filename)
@@ -210,9 +205,12 @@ class SchemePage(FloatLayout):
                 sensors = floor_data["sensors"]
 
                 for sensor in sensors:
-                    print(sensor)
-                    curr_floor.add_sensor(SensorType[sensor.get('type')], sensor.get('topic'),
-                                          size=[sensor.get('width'), sensor.get('width')], pos=[sensor.get('x'), sensor.get('y')])
+                    curr_floor.add_sensor(
+                        SensorType[sensor.get("type")],
+                        sensor.get("topic"),
+                        size=[sensor.get("width"), sensor.get("width")],
+                        pos=[sensor.get("x"), sensor.get("y")],
+                    )
 
     def pop_floor(self):
         if len(self.floors) <= 1:
@@ -240,7 +238,7 @@ class SchemePage(FloatLayout):
         )
 
     def __popup_window_scheme(
-            self, label_text: str, button_text: str, title: str, fun_on_press
+        self, label_text: str, button_text: str, title: str, fun_on_press
     ):
         """
         :param fun_on_press: Must be a function with :param filename: str.
@@ -280,7 +278,7 @@ class FloorCanvas(RelativeLayout):
     image_names = [img for img in listdir("./Resources/Images/")]
 
     def __init__(
-            self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs
+        self, schema_page: SchemePage, floor_number: int, filename: str, **kwargs
     ):
         super().__init__(**kwargs)
 
@@ -345,7 +343,7 @@ class FloorCanvas(RelativeLayout):
 
         return arr
 
-    def add_sensor(self, sensor_type:SensorType, sensor_topic:str, **kwargs):
+    def add_sensor(self, sensor_type: SensorType, sensor_topic: str, **kwargs):
 
         try:
             with open("./Data/user.json", "r") as file:
@@ -356,35 +354,53 @@ class FloorCanvas(RelativeLayout):
         except FileNotFoundError:
             return
 
-        if 'pos' not in kwargs:
-            kwargs['pos'] = [30,30]
+        if "pos" not in kwargs:
+            kwargs["pos"] = [30, 30]
 
         if sensor_type == SensorType.LIGHT:
-            sensor = Light(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = Light(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeLightSensor(sensor, **kwargs)
         elif sensor_type == SensorType.GAS_VALVE:
-            sensor = GasValve(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = GasValve(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeGasValveSensor(sensor, **kwargs)
         elif sensor_type == SensorType.SMART_PLUG:
-            sensor = SmartPlug(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = SmartPlug(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeSmartPlug(sensor, **kwargs)
         elif sensor_type == SensorType.LOCKER:
-            sensor = Locker(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = Locker(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeLock(sensor, **kwargs)
         elif sensor_type == SensorType.GAS_DETECTOR:
-            sensor = GasDetector(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = GasDetector(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeGasDetector(sensor, **kwargs)
         elif sensor_type == SensorType.TEMPERATURE:
-            sensor = TemperatureSensor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = TemperatureSensor(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeTemperature(sensor, **kwargs)
         elif sensor_type == SensorType.HUMID:
-            sensor = HumidSensor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = HumidSensor(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeHumidSensor(sensor, **kwargs)
         elif sensor_type == SensorType.ROLLER_SHADE:
-            sensor = RollerShade(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = RollerShade(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeRollerShade(sensor, **kwargs)
         elif sensor_type == SensorType.GARAGE_DOOR:
-            sensor = GarageDoor(sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port)
+            sensor = GarageDoor(
+                sensor_topic, SettingsPage.broker_ip, SettingsPage.broker_port
+            )
             scheme_sensor = SchemeGarageDoor(sensor, **kwargs)
         else:
             return
@@ -417,10 +433,8 @@ class FloorCanvas(RelativeLayout):
 
     def pop_up_window_add_sensor(self):
         boxlayout = BoxLayout(orientation="vertical")
-        boxlayout.add_widget(
-            Label(text="Provide data")
-        )
-        inp_area = TextInput(text='', multiline=False)
+        boxlayout.add_widget(Label(text="Provide data"))
+        inp_area = TextInput(text="", multiline=False)
         boxlayout.add_widget(inp_area)
 
         selected_sensor_type = None
@@ -447,9 +461,7 @@ class FloorCanvas(RelativeLayout):
 
         boxlayout.add_widget(type_select_button)
 
-        save_close_button = Button(
-            text="Add sensor"
-        )
+        save_close_button = Button(text="Add sensor")
         boxlayout.add_widget(save_close_button)
 
         popup = Popup(

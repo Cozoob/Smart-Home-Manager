@@ -58,7 +58,7 @@ if __name__ == "__main__":
             signum = getattr(signal, i)
             if isinstance(signum, signal.Signals):
                 signal.signal(signum, signal_handler)
-        except (OSError, RuntimeError) as m:  # OSError for Python3, RuntimeError for 2
+        except (OSError, RuntimeError):  # OSError for Python3, RuntimeError for 2
             print("Skipping {}".format(i))
 
     time.sleep(1)
@@ -68,7 +68,6 @@ if __name__ == "__main__":
 
     os.chdir("..")
     cwd = locate("site-packages")
-    # print(cwd)
 
     process_env = os.environ.copy()
     print(process_env["PYTHONPATH"])
@@ -81,12 +80,9 @@ if __name__ == "__main__":
         # linux
         process_env["PYTHONPATH"] = cwd + ":" + process_env["PYTHONPATH"]
 
-
     # example:
     # C:\Users\mnkoz\PycharmProjects\Smart-Home-Manager\venv\Lib\site-packages\paho
     sys.path.append(cwd)
-
-    print(process_env["PYTHONPATH"])
 
     create_subprocess(sensors.GasValveSensor.__name__)
     create_subprocess(sensors.SmartPlug.__name__)

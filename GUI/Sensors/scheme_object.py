@@ -44,8 +44,7 @@ class SchemeObject(FloatLayout):
 
 
 class SchemeSensor(SchemeObject):
-
-    def __init__(self, sensor_name: str, sensor:Sensor, **kwargs):
+    def __init__(self, sensor_name: str, sensor: Sensor, **kwargs):
         super().__init__(**kwargs)
         self.size = [50, 50]
         self.selected = False
@@ -146,7 +145,7 @@ class SchemeSensor(SchemeObject):
             content=content,
             size_hint=(None, None),
             size=content.size,
-            auto_dismiss=False
+            auto_dismiss=False,
         )
 
         button.bind(on_press=popup.dismiss)

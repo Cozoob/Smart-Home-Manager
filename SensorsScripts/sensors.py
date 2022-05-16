@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 
 SLEEP_TIME = 0.5
 
+
 class Sensor(ABC):
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         self.sender_topic = sender_topic
@@ -25,7 +26,7 @@ class Sensor(ABC):
 
         client = mqtt_client.Client(client_id=self.client_id)
         client.on_connect = on_connect
-        status = client.connect(self.broker, self.port)
+        client.connect(self.broker, self.port)
 
         return client
 
@@ -68,7 +69,7 @@ class GasValveSensor(Sensor):
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
+            print(f"Received `{m}` from `{msg.topic}` topic")
 
             if m == "False":
                 self.is_open = False
@@ -115,7 +116,7 @@ class SmartPlug(Sensor):
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
+            print(f"Received `{m}` from `{msg.topic}` topic")
 
             if m == "False":
                 self.is_turn_on = False
@@ -162,7 +163,7 @@ class Lock(Sensor):
     def subscribe(self, client: mqtt_client):
         def on_message(client, userdata, msg):
             m = msg.payload.decode("utf-8")
-            # print(f"Received `{m}` from `{msg.topic}` topic")
+            print(f"Received `{m}` from `{msg.topic}` topic")
 
             if m == "False":
                 self.open = False
@@ -222,15 +223,9 @@ class Light(Sensor):
     client_id2 = f"python-mqtt-{uuid.uuid1()}"
     client_id3 = f"python-mqtt-{uuid.uuid1()}"
 
-
-
-
-
     def __init__(self, broker: str, port: int, sender_topic: str, client_id: str):
         super().__init__(broker, port, sender_topic, client_id)
         self.__connect_mqtt2()
-
-
 
     def publish(self, data: dict):
         self.subscribe(self.client)

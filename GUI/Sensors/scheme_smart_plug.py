@@ -9,7 +9,7 @@ from kivy.uix.layout import Layout
 from GUI.Sensors.PopUpWindowUtils.popup_cycle_field import CycleField
 from GUI.Sensors.PopUpWindowUtils.popup_readonly_field import ReadOnlyField
 from GUI.Sensors.scheme_object import SchemeSensor
-from Sensors.sensors import  SmartPlug
+from Sensors.sensors import SmartPlug
 
 
 class SchemeSmartPlug(SchemeSensor):
@@ -18,7 +18,7 @@ class SchemeSmartPlug(SchemeSensor):
     SENSOR_NAME = "SmartPlug"
     REFRESH_RATE_SECONDS = 1
 
-    def __init__(self, sensor:SmartPlug, **kwargs):
+    def __init__(self, sensor: SmartPlug, **kwargs):
         super(SchemeSmartPlug, self).__init__(self.SENSOR_NAME, sensor, **kwargs)
         self.sensor = sensor
 
@@ -35,7 +35,9 @@ class SchemeSmartPlug(SchemeSensor):
 
         # add header
         main_boxlayout.add_widget(Label(text=self.sensor_name))
-        main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
+        main_boxlayout.add_widget(
+            Label(text="SensorID: " + self.sensor.get_sensor_id())
+        )
 
         # todo
         power_value = ReadOnlyField("Power Value:")
@@ -44,7 +46,9 @@ class SchemeSmartPlug(SchemeSensor):
         turn_state = ReadOnlyField("State:")
         main_boxlayout.add_widget(turn_state)
 
-        turn_on_off = CycleField(["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off])
+        turn_on_off = CycleField(
+            ["On", "Off"], [self.sensor.turn_on, self.sensor.turn_off]
+        )
         turn_on_off.update_value("On" if self.sensor.get_is_turn_on() else "Off")
         main_boxlayout.add_widget(turn_on_off)
 
@@ -58,15 +62,12 @@ class SchemeSmartPlug(SchemeSensor):
         main_boxlayout.add_widget(close_button)
 
         # calculate and set layout size
-        children_sizes = [ child.size for child in main_boxlayout.children ]
-        main_size = [0,0]
+        children_sizes = [child.size for child in main_boxlayout.children]
+        main_size = [0, 0]
         for child_size in children_sizes:
             main_size[0] = max(main_size[0], child_size[0])
             main_size[1] += child_size[1]
 
         main_boxlayout.size = main_size
-        print(main_boxlayout.size)
-        print(children_sizes)
 
         return main_boxlayout, close_button
-

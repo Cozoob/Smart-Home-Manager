@@ -19,7 +19,7 @@ class SchemeRollerShade(SchemeSensor):
     SENSOR_NAME = "RollerShade"
     REFRESH_RATE_SECONDS = 1
 
-    def __init__(self, sensor:RollerShade, **kwargs):
+    def __init__(self, sensor: RollerShade, **kwargs):
         super(SchemeRollerShade, self).__init__(self.SENSOR_NAME, sensor, **kwargs)
         self.sensor = sensor
 
@@ -36,7 +36,9 @@ class SchemeRollerShade(SchemeSensor):
 
         # add header
         main_boxlayout.add_widget(Label(text=self.sensor_name))
-        main_boxlayout.add_widget(Label(text="SensorID: " + self.sensor.get_sensor_id()))
+        main_boxlayout.add_widget(
+            Label(text="SensorID: " + self.sensor.get_sensor_id())
+        )
 
         # todo
         open_state = ReadOnlyField("State:")
@@ -45,11 +47,15 @@ class SchemeRollerShade(SchemeSensor):
         open_value = ReadOnlyField("Open Value:")
         main_boxlayout.add_widget(open_value)
 
-        turn_on_off = CycleField(["Open", "Close"], [self.sensor.open, self.sensor.close])
+        turn_on_off = CycleField(
+            ["Open", "Close"], [self.sensor.open, self.sensor.close]
+        )
         turn_on_off.update_value("Open" if self.sensor.get_is_open() else "Close")
         main_boxlayout.add_widget(turn_on_off)
 
-        set_open_value = ReadWriteFieldInt("Open Value (0-100)", self.sensor.set_open_value, 0, 100)
+        set_open_value = ReadWriteFieldInt(
+            "Open Value (0-100)", self.sensor.set_open_value, 0, 100
+        )
         set_open_value.update_value(self.sensor.get_open_value())
         main_boxlayout.add_widget(set_open_value)
 
@@ -63,15 +69,12 @@ class SchemeRollerShade(SchemeSensor):
         main_boxlayout.add_widget(close_button)
 
         # calculate and set layout size
-        children_sizes = [ child.size for child in main_boxlayout.children ]
-        main_size = [0,0]
+        children_sizes = [child.size for child in main_boxlayout.children]
+        main_size = [0, 0]
         for child_size in children_sizes:
             main_size[0] = max(main_size[0], child_size[0])
             main_size[1] += child_size[1]
 
         main_boxlayout.size = main_size
-        print(main_boxlayout.size)
-        print(children_sizes)
 
         return main_boxlayout, close_button
-

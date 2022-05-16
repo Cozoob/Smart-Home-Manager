@@ -6,14 +6,15 @@ from GUI.Sensors.PopUpWindowUtils.popup_field import Field
 
 
 class CycleField(Field):
-
-    def __init__(self, options:List[str], functions:List, **kwargs):
+    def __init__(self, options: List[str], functions: List, **kwargs):
         super().__init__(**kwargs)
         self.size_hint = (None, 1)
-        self.size = (self.size[0]-50, 0)
+        self.size = (self.size[0] - 50, 0)
 
         if len(options) != len(functions):
-            raise ValueError("Amount of options should be equal to amount of functions provided")
+            raise ValueError(
+                "Amount of options should be equal to amount of functions provided"
+            )
 
         self.options = options
         self.functions = functions
@@ -34,12 +35,12 @@ class CycleField(Field):
 
         self.set_index(self.curr_index)
 
-    def change_index(self, index:int):
+    def change_index(self, index: int):
         self.button.text = self.options[index]
         self.functions[index]()
         self.curr_index = index
 
-    def set_index(self, index:int):
+    def set_index(self, index: int):
         self.button.text = self.options[index]
         self.curr_index = index
 
