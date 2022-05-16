@@ -64,25 +64,7 @@ if __name__ == "__main__":
     time.sleep(1)
 
     file = os.path.join(os.getcwd(), "sensor.py")
-    pythonpath = os.environ["PYTHONPATH"]
-
-    os.chdir("..")
-    cwd = locate("site-packages")
-
     process_env = os.environ.copy()
-    print(process_env["PYTHONPATH"])
-    # process_env["PYTHONPATH"].join(cwd)
-
-    if pythonpath.find(";") != -1:
-        # windows
-        process_env["PYTHONPATH"] = cwd + ";" + process_env["PYTHONPATH"]
-    else:
-        # linux
-        process_env["PYTHONPATH"] = cwd + ":" + process_env["PYTHONPATH"]
-
-    # example:
-    # C:\Users\mnkoz\PycharmProjects\Smart-Home-Manager\venv\Lib\site-packages\paho
-    sys.path.append(cwd)
 
     create_subprocess(sensors.GasValveSensor.__name__)
     create_subprocess(sensors.SmartPlug.__name__)
